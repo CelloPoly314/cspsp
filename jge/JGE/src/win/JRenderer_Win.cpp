@@ -19,6 +19,11 @@
 extern "C" {
 #endif
 
+	FILE** __iob_func() {
+		static FILE* iob[3] = { stdin, stdout, stderr };
+		return iob;
+	}
+
 #define XMD_H
 #include <jpeglib.h>
 
@@ -26,12 +31,15 @@ extern "C" {
 }
 #endif
 
-
+#include <GL\glew.h> 
+#include <glm/glm.hpp>        // 基本的 glm 数学功能和类型 (如 glm::vec2)
+#include <glm/vec2.hpp>       // 单独包含 vec2 类型
 #include "../../include/JGE.h"
 #include "../../include/JRenderer.h"
 #include "../../include/JResourceManager.h"
 #include "../../include/JFileSystem.h"
 #include "../../include/JAssert.h"
+#include <SDL.h> 
 
 #pragma comment( lib, "giflib.lib" )
 
@@ -113,7 +121,9 @@ JTexture::~JTexture()
 
 void JTexture::UpdateBits(int x, int y, int width, int height, PIXEL_TYPE* bits)
 {
+
 	JRenderer::GetInstance()->BindTexture(this);
+
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bits);
 
 }
@@ -192,14 +202,14 @@ void JRenderer::DestroyRenderer()
 void JRenderer::BeginScene()
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
-	glLoadIdentity ();											// Reset The Modelview Matrix
+	//glLoadIdentity ();											// Reset The Modelview Matrix
 
 }
 
 
 void JRenderer::EndScene()
 {
-	glFlush ();
+	//glFlush ();
 }
 
 void JRenderer::BindTexture(JTexture *tex)
@@ -217,11 +227,13 @@ void JRenderer::BindTexture(JTexture *tex)
 			{
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
 			}
 			else if (mCurrentTextureFilter == TEX_FILTER_NEAREST)
 			{
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+				
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
 		}
 	}
@@ -246,145 +258,274 @@ void Swap(float *a, float *b)
 }
 
 
+//void JRenderer::RenderQuad(JQuad* quad, float xo, float yo, float angle, float xScale, float yScale)
+//{
+//	//yo = SCREEN_HEIGHT-yo-1;//-(quad->mHeight);
+//	float width = quad->mWidth;
+//	float height = quad->mHeight;
+//	float x = -quad->mHotSpotX;
+//	float y = quad->mHotSpotY;
+//
+//	Vector2D pt[4];
+//	pt[3] = Vector2D(x, y);
+//	pt[2] = Vector2D(x+width, y);
+//	pt[1] = Vector2D(x+width, y-height);
+//	pt[0] = Vector2D(x, y-height);
+//	
+//// 	if (angle != 0.0f)
+//// 	{
+//// 		float xx, yy;
+//// 		float cosAngle = cosf(angle);
+//// 		float sinAngle = sinf(angle);
+//// 		for (int i=0;i<4;i++)
+//// 		{
+//// 			xx = (cosAngle*(pt[i].x-xo) - sinAngle*(pt[i].y-yo) + xo);
+//// 			yy = (sinAngle*(pt[i].x-xo) + cosAngle*(pt[i].y-yo) + yo); 
+//// 			pt[i].x = xx;
+//// 			pt[i].y = yy;
+//// 		}
+//// 	}
+//// 
+//// 	for (int i=0;i<4;i++)
+//// 		pt[i].y = SCREEN_HEIGHT_F - pt[i].y;
+//
+//	Vector2D uv[4];
+//	uv[0] = Vector2D(quad->mTX0, quad->mTY1);
+//	uv[1] = Vector2D(quad->mTX1, quad->mTY1);
+//	uv[2] = Vector2D(quad->mTX1, quad->mTY0);
+//	uv[3] = Vector2D(quad->mTX0, quad->mTY0);
+//
+//	if (quad->mHFlipped)
+//	{
+//		Swap(&uv[0].x, &uv[1].x);
+//		Swap(&uv[2].x, &uv[3].x);
+//	}
+//	
+//	if (quad->mVFlipped)
+//	{
+//		Swap(&uv[0].y, &uv[2].y);
+//		Swap(&uv[1].y, &uv[3].y);
+//	}
+//
+//	
+//	//glEnable(GL_BLEND);
+//	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//	BindTexture(quad->mTex);
+//
+//
+//	////glRasterPos2f(x, y);
+//	
+//
+//	yo = SCREEN_HEIGHT_F - yo;
+//
+//	glPushMatrix();
+//	glTranslatef(xo, yo, 0.0f);
+//	glRotatef(-angle*RAD2DEG, 0.0f, 0.0f, 1.0f);
+//	glScalef(xScale, yScale, 1.0f);
+//
+//	glBegin(GL_QUADS);
+//		// bottom left corner
+//		glColor4ub(quad->mColor[0].r, quad->mColor[0].g, quad->mColor[0].b, quad->mColor[0].a);
+//		glTexCoord2f(uv[0].x, uv[0].y); glVertex2f(pt[0].x, pt[0].y);		
+//
+//		// bottom right corner
+//		glColor4ub(quad->mColor[1].r, quad->mColor[1].g, quad->mColor[1].b, quad->mColor[1].a);
+//		glTexCoord2f(uv[1].x, uv[1].y); glVertex2f(pt[1].x, pt[1].y);	
+//		
+//		// top right corner
+//		glColor4ub(quad->mColor[2].r, quad->mColor[2].g, quad->mColor[2].b, quad->mColor[2].a);
+//		glTexCoord2f(uv[2].x, uv[2].y); glVertex2f(pt[2].x, pt[2].y);	
+//
+//		// top left corner
+//		glColor4ub(quad->mColor[3].r, quad->mColor[3].g, quad->mColor[3].b, quad->mColor[3].a);
+//		glTexCoord2f(uv[3].x, uv[3].y); glVertex2f(pt[3].x, pt[3].y);		
+//	glEnd();
+//	
+//	glPopMatrix();
+//
+//	//glDisable(GL_BLEND);
+//	
+//	// default color
+//	glColor4ub(255, 255, 255, 255);
+//}
 void JRenderer::RenderQuad(JQuad* quad, float xo, float yo, float angle, float xScale, float yScale)
 {
-	//yo = SCREEN_HEIGHT-yo-1;//-(quad->mHeight);
 	float width = quad->mWidth;
 	float height = quad->mHeight;
 	float x = -quad->mHotSpotX;
 	float y = quad->mHotSpotY;
 
+	// 计算四个顶点的位置
 	Vector2D pt[4];
 	pt[3] = Vector2D(x, y);
-	pt[2] = Vector2D(x+width, y);
-	pt[1] = Vector2D(x+width, y-height);
-	pt[0] = Vector2D(x, y-height);
-	
-// 	if (angle != 0.0f)
-// 	{
-// 		float xx, yy;
-// 		float cosAngle = cosf(angle);
-// 		float sinAngle = sinf(angle);
-// 		for (int i=0;i<4;i++)
-// 		{
-// 			xx = (cosAngle*(pt[i].x-xo) - sinAngle*(pt[i].y-yo) + xo);
-// 			yy = (sinAngle*(pt[i].x-xo) + cosAngle*(pt[i].y-yo) + yo); 
-// 			pt[i].x = xx;
-// 			pt[i].y = yy;
-// 		}
-// 	}
-// 
-// 	for (int i=0;i<4;i++)
-// 		pt[i].y = SCREEN_HEIGHT_F - pt[i].y;
+	pt[2] = Vector2D(x + width, y);
+	pt[1] = Vector2D(x + width, y - height);
+	pt[0] = Vector2D(x, y - height);
 
+	// 计算纹理坐标（确保纹理坐标始终在[0,1]范围内）
 	Vector2D uv[4];
-	uv[0] = Vector2D(quad->mTX0, quad->mTY1);
-	uv[1] = Vector2D(quad->mTX1, quad->mTY1);
-	uv[2] = Vector2D(quad->mTX1, quad->mTY0);
-	uv[3] = Vector2D(quad->mTX0, quad->mTY0);
+	uv[0] = Vector2D(quad->mTX0 + 0.001f, quad->mTY1 - 0.001f); // 左下 (微调偏移)
+	uv[1] = Vector2D(quad->mTX1 - 0.001f, quad->mTY1 - 0.001f); // 右下 (微调偏移)
+	uv[2] = Vector2D(quad->mTX1 - 0.001f, quad->mTY0 + 0.001f); // 右上 (微调偏移)
+	uv[3] = Vector2D(quad->mTX0 + 0.001f, quad->mTY0 + 0.001f); // 左上 (微调偏移)
 
+	// 水平翻转
 	if (quad->mHFlipped)
 	{
 		Swap(&uv[0].x, &uv[1].x);
 		Swap(&uv[2].x, &uv[3].x);
 	}
-	
+
+	// 垂直翻转
 	if (quad->mVFlipped)
 	{
 		Swap(&uv[0].y, &uv[2].y);
 		Swap(&uv[1].y, &uv[3].y);
 	}
 
-	
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	// 绑定纹理
 	BindTexture(quad->mTex);
 
-
-	////glRasterPos2f(x, y);
-	
-
+	// 将坐标翻转到屏幕坐标系（上下翻转）
 	yo = SCREEN_HEIGHT_F - yo;
 
+	// 开始渲染
 	glPushMatrix();
-	glTranslatef(xo, yo, 0.0f);
-	glRotatef(-angle*RAD2DEG, 0.0f, 0.0f, 1.0f);
-	glScalef(xScale, yScale, 1.0f);
+	glTranslatef(xo, yo, 0.0f); // 平移
+	glRotatef(-angle * RAD2DEG, 0.0f, 0.0f, 1.0f); // 旋转
+	glScalef(xScale, yScale, 1.0f); // 缩放
 
+	// 绘制四边形
 	glBegin(GL_QUADS);
-		// bottom left corner
-		glColor4ub(quad->mColor[0].r, quad->mColor[0].g, quad->mColor[0].b, quad->mColor[0].a);
-		glTexCoord2f(uv[0].x, uv[0].y); glVertex2f(pt[0].x, pt[0].y);		
+	// bottom left corner
+	glColor4ub(quad->mColor[0].r, quad->mColor[0].g, quad->mColor[0].b, quad->mColor[0].a);
+	glTexCoord2f(uv[0].x, uv[0].y); glVertex2f(pt[0].x, pt[0].y);
 
-		// bottom right corner
-		glColor4ub(quad->mColor[1].r, quad->mColor[1].g, quad->mColor[1].b, quad->mColor[1].a);
-		glTexCoord2f(uv[1].x, uv[1].y); glVertex2f(pt[1].x, pt[1].y);	
-		
-		// top right corner
-		glColor4ub(quad->mColor[2].r, quad->mColor[2].g, quad->mColor[2].b, quad->mColor[2].a);
-		glTexCoord2f(uv[2].x, uv[2].y); glVertex2f(pt[2].x, pt[2].y);	
+	// bottom right corner
+	glColor4ub(quad->mColor[1].r, quad->mColor[1].g, quad->mColor[1].b, quad->mColor[1].a);
+	glTexCoord2f(uv[1].x, uv[1].y); glVertex2f(pt[1].x, pt[1].y);
 
-		// top left corner
-		glColor4ub(quad->mColor[3].r, quad->mColor[3].g, quad->mColor[3].b, quad->mColor[3].a);
-		glTexCoord2f(uv[3].x, uv[3].y); glVertex2f(pt[3].x, pt[3].y);		
+	// top right corner
+	glColor4ub(quad->mColor[2].r, quad->mColor[2].g, quad->mColor[2].b, quad->mColor[2].a);
+	glTexCoord2f(uv[2].x, uv[2].y); glVertex2f(pt[2].x, pt[2].y);
+
+	// top left corner
+	glColor4ub(quad->mColor[3].r, quad->mColor[3].g, quad->mColor[3].b, quad->mColor[3].a);
+	glTexCoord2f(uv[3].x, uv[3].y); glVertex2f(pt[3].x, pt[3].y);
 	glEnd();
-	
+
+	// 还原矩阵
 	glPopMatrix();
 
-	//glDisable(GL_BLEND);
-	
-	// default color
+	// 恢复默认颜色
 	glColor4ub(255, 255, 255, 255);
 }
 
 
+
+
+//void JRenderer::RenderQuad(JQuad* quad, VertexColor* pt)
+//{
+//
+//	for (int i=0;i<4;i++)
+//	{
+//		pt[i].y = SCREEN_HEIGHT_F - pt[i].y;
+//		quad->mColor[i].color = pt[i].color;
+//	}
+//
+//	Vector2D uv[4];
+//	uv[0] = Vector2D(quad->mTX0, quad->mTY1);
+//	uv[1] = Vector2D(quad->mTX1, quad->mTY1);
+//	uv[2] = Vector2D(quad->mTX1, quad->mTY0);
+//	uv[3] = Vector2D(quad->mTX0, quad->mTY0);
+//
+//	BindTexture(quad->mTex);
+//
+//	glRasterPos2f(pt[0].x, pt[0].y);
+//	
+//	//float w = quad->mWidth;
+//	//float h = quad->mHeight;
+//
+//	glBegin(GL_QUADS);
+//		// bottom left corner
+//		glColor4ub(quad->mColor[0].r, quad->mColor[0].g, quad->mColor[0].b, quad->mColor[0].a);
+//		glTexCoord2f(uv[0].x, uv[0].y); glVertex2f(pt[0].x, pt[0].y);		
+//
+//		// bottom right corner
+//		glColor4ub(quad->mColor[1].r, quad->mColor[1].g, quad->mColor[1].b, quad->mColor[1].a);
+//		glTexCoord2f(uv[1].x, uv[1].y); glVertex2f(pt[1].x, pt[1].y);	
+//		
+//		// top right corner
+//		glColor4ub(quad->mColor[2].r, quad->mColor[2].g, quad->mColor[2].b, quad->mColor[2].a);
+//		glTexCoord2f(uv[2].x, uv[2].y); glVertex2f(pt[2].x, pt[2].y);	
+//
+//		// top left corner
+//		glColor4ub(quad->mColor[3].r, quad->mColor[3].g, quad->mColor[3].b, quad->mColor[3].a);
+//		glTexCoord2f(uv[3].x, uv[3].y); glVertex2f(pt[3].x, pt[3].y);		
+//	glEnd();
+//	
+//	//glDisable(GL_BLEND);
+//	
+//	// default color
+//	glColor4ub(255, 255, 255, 255);
+//}
+
 void JRenderer::RenderQuad(JQuad* quad, VertexColor* pt)
 {
-
-	for (int i=0;i<4;i++)
+	// 将y坐标翻转到屏幕坐标系（上下翻转）
+	for (int i = 0; i < 4; i++)
 	{
 		pt[i].y = SCREEN_HEIGHT_F - pt[i].y;
 		quad->mColor[i].color = pt[i].color;
 	}
 
+	// 计算纹理坐标（确保纹理坐标始终在[0,1]范围内）
 	Vector2D uv[4];
 	uv[0] = Vector2D(quad->mTX0, quad->mTY1);
 	uv[1] = Vector2D(quad->mTX1, quad->mTY1);
 	uv[2] = Vector2D(quad->mTX1, quad->mTY0);
 	uv[3] = Vector2D(quad->mTX0, quad->mTY0);
 
+	// 水平翻转
+	if (quad->mHFlipped)
+	{
+		Swap(&uv[0].x, &uv[1].x);
+		Swap(&uv[2].x, &uv[3].x);
+	}
+
+	// 垂直翻转
+	if (quad->mVFlipped)
+	{
+		Swap(&uv[0].y, &uv[2].y);
+		Swap(&uv[1].y, &uv[3].y);
+	}
+
+	// 绑定纹理
 	BindTexture(quad->mTex);
 
-	glRasterPos2f(pt[0].x, pt[0].y);
-	
-	//float w = quad->mWidth;
-	//float h = quad->mHeight;
-
+	// 绘制四边形
 	glBegin(GL_QUADS);
-		// bottom left corner
-		glColor4ub(quad->mColor[0].r, quad->mColor[0].g, quad->mColor[0].b, quad->mColor[0].a);
-		glTexCoord2f(uv[0].x, uv[0].y); glVertex2f(pt[0].x, pt[0].y);		
+	// bottom left corner
+	glColor4ub(quad->mColor[0].r, quad->mColor[0].g, quad->mColor[0].b, quad->mColor[0].a);
+	glTexCoord2f(uv[0].x, uv[0].y); glVertex2f(pt[0].x, pt[0].y);
 
-		// bottom right corner
-		glColor4ub(quad->mColor[1].r, quad->mColor[1].g, quad->mColor[1].b, quad->mColor[1].a);
-		glTexCoord2f(uv[1].x, uv[1].y); glVertex2f(pt[1].x, pt[1].y);	
-		
-		// top right corner
-		glColor4ub(quad->mColor[2].r, quad->mColor[2].g, quad->mColor[2].b, quad->mColor[2].a);
-		glTexCoord2f(uv[2].x, uv[2].y); glVertex2f(pt[2].x, pt[2].y);	
+	// bottom right corner
+	glColor4ub(quad->mColor[1].r, quad->mColor[1].g, quad->mColor[1].b, quad->mColor[1].a);
+	glTexCoord2f(uv[1].x, uv[1].y); glVertex2f(pt[1].x, pt[1].y);
 
-		// top left corner
-		glColor4ub(quad->mColor[3].r, quad->mColor[3].g, quad->mColor[3].b, quad->mColor[3].a);
-		glTexCoord2f(uv[3].x, uv[3].y); glVertex2f(pt[3].x, pt[3].y);		
+	// top right corner
+	glColor4ub(quad->mColor[2].r, quad->mColor[2].g, quad->mColor[2].b, quad->mColor[2].a);
+	glTexCoord2f(uv[2].x, uv[2].y); glVertex2f(pt[2].x, pt[2].y);
+
+	// top left corner
+	glColor4ub(quad->mColor[3].r, quad->mColor[3].g, quad->mColor[3].b, quad->mColor[3].a);
+	glTexCoord2f(uv[3].x, uv[3].y); glVertex2f(pt[3].x, pt[3].y);
 	glEnd();
-	
-	//glDisable(GL_BLEND);
-	
-	// default color
+
+	// 恢复默认颜色
 	glColor4ub(255, 255, 255, 255);
 }
-
 
 void JRenderer::FillRect(float x, float y, float width, float height, PIXEL_TYPE color)
 {
@@ -499,6 +640,19 @@ void JRenderer::DrawLine(float x1, float y1, float x2, float y2, PIXEL_TYPE colo
 	JColor col;
 	col.color = color;
 	glColor4ub(col.r, col.g, col.b, col.a);
+	SDL_Window* window = SDL_GL_GetCurrentWindow();
+	// 获取窗口的当前尺寸
+	int windowWidth, windowHeight;
+	SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+	// 计算缩放因子
+	float scaleX = (float)windowWidth / SCREEN_WIDTH_F;
+	float scaleY = (float)windowHeight / SCREEN_HEIGHT_F;
+	float scale = min(scaleX, scaleY);
+
+	glLineWidth(1.0f * scale);  // 按照比例调整线宽
+
+	//glLineWidth(1.0f);
 	glBegin(GL_LINES);
 		glVertex2f(x1, SCREEN_HEIGHT_F-y1);
 		glVertex2f(x2, SCREEN_HEIGHT_F-y2);
@@ -840,8 +994,10 @@ JTexture* JRenderer::LoadTexture(const char* filename, int mode)
 			}
 			else									// single texture
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);*/
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureInfo.mTexWidth, textureInfo.mTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureInfo.mBits);
@@ -1225,23 +1381,56 @@ void JRenderer::LoadGIF(TextureInfo &textureInfo, const char *filename, int mode
 
 
 
-JTexture* JRenderer::CreateTexture(int width, int height, int mode )
-{
-	int size = width * height * sizeof(PIXEL_TYPE);			// RGBA
-
+//JTexture* JRenderer::CreateTexture(int width, int height, int mode )
+//{
+//	int size = width * height * sizeof(PIXEL_TYPE);			// RGBA
+//
+//	BYTE* buffer = new BYTE[size];
+//
+//	JTexture *tex = new JTexture();
+//
+//	if (buffer && tex)
+//	{
+//		tex->mFilter = TEX_FILTER_LINEAR;
+//		tex->mWidth = width;
+//		tex->mHeight = height;
+//		tex->mTexWidth = width;
+//		tex->mTexHeight = height;
+//
+//		GLuint texid; 
+//		glGenTextures(1, &texid);
+//		tex->mTexId = texid;
+//
+//		memset(buffer, 0, size);
+//
+//		glBindTexture(GL_TEXTURE_2D, texid);
+//
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+//		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+//
+//		delete buffer;
+//
+//		return tex;
+//	}
+//	else
+//		return NULL;
+//}
+JTexture* JRenderer::CreateTexture(int width, int height, int mode) {
+	int size = width * height * sizeof(PIXEL_TYPE);  // RGBA
 	BYTE* buffer = new BYTE[size];
+	JTexture* tex = new JTexture();
 
-	JTexture *tex = new JTexture();
-
-	if (buffer && tex)
-	{
+	if (buffer && tex) {
 		tex->mFilter = TEX_FILTER_LINEAR;
 		tex->mWidth = width;
 		tex->mHeight = height;
 		tex->mTexWidth = width;
 		tex->mTexHeight = height;
 
-		GLuint texid; 
+		GLuint texid;
 		glGenTextures(1, &texid);
 		tex->mTexId = texid;
 
@@ -1249,18 +1438,57 @@ JTexture* JRenderer::CreateTexture(int width, int height, int mode )
 
 		glBindTexture(GL_TEXTURE_2D, texid);
 
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
 		delete buffer;
 
+		// 处理纹理坐标逻辑
+		ApplyTextureCoordinates(tex);
+
 		return tex;
 	}
-	else
-		return NULL;
+	else {
+		return nullptr;
+	}
 }
 
+void JRenderer::ApplyTextureCoordinates(JTexture* tex) {
+	// 假设我们有一个 spriteRect 和 flipped 参数
+	// spriteRect 是纹理的原始区域，flipped 表示是否翻转
+
+	float spriteRect[4] = { 0.0f, 0.0f, 1.0f, 1.0f };  // 示例的 spriteRect (左下角和右上角)
+	glm::vec2 flipped = glm::vec2(1.0f, 1.0f);  // 示例，表示没有翻转
+
+	// 计算纹理坐标
+	glm::vec2 spriteSource = glm::vec2(spriteRect[0], spriteRect[1]);
+	glm::vec2 spriteSize = glm::vec2(spriteRect[2] - 1.0f, spriteRect[3] - 1.0f); // -1.0f to fix border problem
+
+	// 假设顶点坐标为 (0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)
+	glm::vec2 vertices[4] = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 1.0f)
+	};
+
+	// 计算纹理坐标
+	for (int i = 0; i < 4; ++i) {
+		glm::vec2 v = vertices[i];
+
+		// 翻转逻辑
+		if (flipped.x == 1.0f) v.x = 1.0f - v.x;
+		if (flipped.y == 1.0f) v.y = 1.0f - v.y;
+
+		// 计算纹理坐标
+		tex->TexCoords[i].x = (v.x * spriteSize.x + spriteSource.x) / tex->mTexWidth;
+		tex->TexCoords[i].y = (v.y * spriteSize.y + spriteSource.y) / tex->mTexHeight;
+	}
+}
 
 void JRenderer::EnableVSync(bool flag)
 {

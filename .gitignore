@@ -33,3 +33,7 @@
 
 # Other
 Thumbs.db
+
+# Folders
+.vs/
+Release/

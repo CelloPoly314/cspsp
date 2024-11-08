@@ -1,9 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cspsp", "cspsp.vcproj", "{53024371-2293-4D40-8ECF-FCB470B50DA1}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cspsp", "cspsp.vcxproj", "{53024371-2293-4D40-8ECF-FCB470B50DA1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JGE", "..\..\JGE\JGE.vcproj", "{89159C26-2282-404A-A194-103B0A49DF7B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JGE", "..\..\JGE\JGE.vcxproj", "{89159C26-2282-404A-A194-103B0A49DF7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {85EE3251-FF35-4459-BF59-11A70DD69C2B}
 	EndGlobalSection
 EndGlobal

@@ -19,7 +19,7 @@
 #include "Globals.h"
 
 #ifdef WIN32
-#include <ctime>
+#include <chrono>
 #else
 #include "mp3player.h"
 

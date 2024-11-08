@@ -1,6 +1,7 @@
 
 #include "Person.h"
 #include "Globals.h"
+#include <algorithm>
 
 JRenderer* Person::mRenderer = NULL;
 JSoundSystem* Person::mSoundSystem = NULL;
@@ -101,6 +102,10 @@ Person::Person(JQuad* quads[], JQuad* deadquad, std::vector<Bullet*>* bullets, s
 	mHasFlag = false;
 
 	mInvincibleTime = 0.0f;
+
+	mCursorX = mCursorY = 0;
+
+	mCursorTime = 0.0f;
 	/*JTexture* texture = mRenderer->LoadTexture("gfx/playerparts.png");
 	mPartQuads[BODY] = new JQuad(texture,0,0,32,16);
 	mPartQuads[BODY]->SetHotSpot(16,8);
@@ -398,6 +403,12 @@ void Person::Update(float dt)
 	if (mInvincibleTime < 0.0f) {
 		mInvincibleTime = 0.0f;
 	}
+
+	mCursorTime -= dt;
+	if (mCursorTime < 0.0f) {
+		mCursorTime = 0.0f;
+	}
+
 }
 
 
@@ -547,6 +558,14 @@ void Person::Render(float x, float y)
 		if (mInvincibleTime > 0.0f) {
 			mRenderer->DrawCircle(mX-offsetX,mY-offsetY,17,ARGB(200,0,0,0));
 			mRenderer->DrawCircle(mX-offsetX,mY-offsetY,16,ARGB(255,255,255,255));
+		}
+
+		// draw cursor
+		//if (abs(mCursorX) > 10 || abs(mCursorY) > 10)
+		if (mCursorTime > 0) {
+			int alpha = (mCursorTime / 30.0f);
+			mRenderer->FillPolygon(SCREEN_WIDTH_2 + mCursorX, SCREEN_HEIGHT_2 + mCursorY,
+				3, 3, -mFacingAngle, ARGB(alpha-40, 0, 255, 0)); // 检查这里的 ARGB
 		}
 	}	
 	else {
@@ -932,6 +951,71 @@ void Person::RotateFacing(float theta)
 	mFacingAngle = thetaTemp;
 }
 
+void Person::MoveCursor(int deltaCursorX, int deltaCursorY, float dt)
+{
+	// 更新光标位置
+	mCursorX += deltaCursorX;
+	mCursorY += deltaCursorY;
+
+	mCursorTime = 6000.0f;
+
+	const double maxRadius = 3000.0;  // 最大半径
+
+	// 计算光标距离中心点的平方
+	double distanceSquared = pow(mCursorX, 2) + pow(mCursorY, 2);
+
+	// 将光标约束在最大半径之间
+	if (distanceSquared > maxRadius) {
+		double scale = sqrt(maxRadius / distanceSquared);
+		mCursorX *= scale;
+		mCursorY *= scale;
+	}
+
+	// 计算目标角度
+	double targetAngle;
+	if (mCursorX == 0) {
+		targetAngle = (mCursorY > 0) ? M_PI_2 : -M_PI_2;
+	}
+	else {
+		targetAngle = atan2(mCursorY, mCursorX);  // 使用 atan2 保证角度范围在 -π 到 π
+	}
+
+	const double TWO_PI = 2 * M_PI; // 定义常量 2π
+
+	// 计算最短旋转方向的角度差
+	double angleDifference = fmod(targetAngle - mFacingAngle + M_PI, TWO_PI); // 使用模运算
+	if (angleDifference < 0) {
+		angleDifference += TWO_PI; // 确保结果在 [0, 2π) 范围内
+	}
+	angleDifference -= M_PI; // 转换到 [-π, π) 范围内
+
+	// 定义旋转的最小阈值和缓冲时间
+	const double rotationThreshold = 0.01; // 反向旋转的最小阈值
+	const double rotationSpeed = 0.005; // 每帧旋转的角度
+
+	// 只有在角度差超过阈值时才进行旋转
+	if (fabs(angleDifference) > rotationThreshold) {
+		// 计算基于时间的旋转增量
+		double rotationDelta = rotationSpeed * dt; // 计算时间增量影响
+
+		// 确保旋转增量不超过当前角度差
+		if (fabs(angleDifference) < rotationDelta) {
+			mFacingAngle = targetAngle; // 直接设置目标角度
+		}
+		else {
+			// 向目标方向旋转
+			if (angleDifference > 0) {
+				mFacingAngle += min(rotationDelta, angleDifference);
+			}
+			else {
+				mFacingAngle -= min(rotationDelta, -angleDifference);
+			}
+		}
+	}
+
+	// 更新旋转角度
+	mRotation = mFacingAngle - M_PI_2; // 更新旋转角度
+}
 //------------------------------------------------------------------------------------------------
 void Person::SetMoveState(int state)
 {

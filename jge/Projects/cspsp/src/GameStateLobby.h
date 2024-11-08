@@ -128,7 +128,7 @@ public:
 		if (selected) gFont->SetColor(ARGB(255,0,128,255));
 
 		gFont->DrawShadowedString(info.name,x-10,y+3);
-		gFont->DrawShadowedString(buffer,x+SCREEN_WIDTH-60,y+3,JGETEXT_RIGHT);
+		gFont->DrawShadowedString(buffer,x+SCREEN_WIDTH_F-60,y+3,JGETEXT_RIGHT);
 	}
 
 	static bool Compare(ListItem* first, ListItem* second) {
@@ -172,7 +172,7 @@ public:
 		else {
 			sprintf(buffer,"%i",info.ping);
 		}
-		gFont->DrawShadowedString(buffer,SCREEN_WIDTH-30,y+3,JGETEXT_RIGHT);
+		gFont->DrawShadowedString(buffer,SCREEN_WIDTH_F-30,y+3,JGETEXT_RIGHT);
 	}
 
 	static bool Compare(ListItem* first, ListItem* second) {

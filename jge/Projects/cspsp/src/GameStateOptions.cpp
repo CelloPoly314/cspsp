@@ -44,6 +44,9 @@ void GameStateOptions::Create()
 	if (strcmp(name,"default") == 0) {
 		sceUtilityGetSystemParamString(PSP_SYSTEMPARAM_ID_STRING_NICKNAME, name, 15);
 		name[15] = '\0';
+		/*strcpy(name, "Player");
+		name[15] = '\0';*/
+		
 
 		movementstyle = ABSOLUTE1;
 		char* movement = GetConfig("data/config.txt","movement");
@@ -240,7 +243,7 @@ void GameStateOptions::End()
 
 void GameStateOptions::Update(float dt)
 {
-	if (!gDanzeff->mIsActive) {
+	if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
 		if (mEngine->GetButtonClick(PSP_CTRL_LTRIGGER)) {
 			mState--;
 			if (mState < 0) {
@@ -272,7 +275,7 @@ void GameStateOptions::Update(float dt)
 
 	if (mState == OPTIONS) {
 		mInfoX *= 0.75f;
-		if (!gDanzeff->mIsActive) {
+		if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
 			if (main) {
 				int temp = index;
 				if (mEngine->GetButtonState(PSP_CTRL_UP) || mEngine->GetAnalogY()<64) {
@@ -313,8 +316,14 @@ void GameStateOptions::Update(float dt)
 				if (mEngine->GetButtonClick(PSP_CTRL_CROSS)) {
 					if (index == 4) {
 						main = false;
-						gDanzeff->Enable();
-						gDanzeff->mString = name;
+						if (!isUsingKeyboard()) {
+							gDanzeff->Enable();
+							gDanzeff->mString = name;
+						}
+						else {
+							gTextInput->Enable();
+							gTextInput->mString = name;
+						}
 						tempname = name;
 					}
 					else if (index == NUMCONFIGS-1) {
@@ -401,6 +410,42 @@ void GameStateOptions::Update(float dt)
 				gDanzeff->Disable();
 			}
 		}
+		else if (gTextInput->mIsActive) {
+			gTextInput->Update(dt);
+			if (gTextInput->mString.length() > 15) {
+				gTextInput->mString = gDanzeff->mString.substr(0, 15);
+			}
+			tempname = (char*)gTextInput->mString.c_str();
+
+			if (mEngine->GetButtonClick(PSP_CTRL_START)) {
+				main = true;
+
+				bool valid = true;
+				FILE* file = fopen("nataku92.txt", "r");
+				if (file == NULL) {
+					if (stricmp(tempname, "nataku92") == 0 || strstr(tempname, "nataku92") != NULL) {
+						valid = false;
+					}
+				}
+				else {
+					fclose(file);
+				}
+
+				if (valid) {
+					strcpy(name, tempname);
+				}
+				else {
+					if (stricmp(name, "nataku92") == 0 || strstr(name, "nataku92") != NULL) {
+						strcpy(name, "default");
+					}
+				}
+				gTextInput->Disable();
+			}
+			else if (mEngine->GetButtonClick(PSP_CTRL_SELECT)) {
+				main = true;
+				gTextInput->Disable();
+			}
+		}
 	}
 	else if (mState == CONTROLS) {
 		if (mEngine->GetButtonClick(PSP_CTRL_CIRCLE)) {
@@ -453,10 +498,10 @@ void GameStateOptions::Render()
 		}
 		else {
 			mRenderer->FillRect(0,35+index*25,SCREEN_WIDTH,25,ARGB(100,0,128,255));
-			if (!gDanzeff->mIsActive) {
+			if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
 				gFont->DrawShadowedString("[DIR PAD/ANALOG] Change Selection    [X] Select    [O] Cancel",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 			}
-			else if (gDanzeff->mIsActive) {
+			else if (gTextInput->mIsActive ||gDanzeff->mIsActive) {
 				gFont->DrawShadowedString("[START] Enter    [SELECT] Cancel",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 			}
 		}
@@ -498,18 +543,23 @@ void GameStateOptions::Render()
 
 		gFont->SetColor(ARGB(255,255,255,255));
 		gFont->SetScale(0.75f);
-		if (!gDanzeff->mIsActive) {
+		if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
 			gFont->DrawShadowedString(name,160+10,140);
 		}
 		else if (gDanzeff->mIsActive) {
 			gFont->DrawShadowedString(tempname,160+10,140);
 			gFont->DrawShadowedString("|",160+10+gFont->GetStringWidth(tempname),140);
-			gDanzeff->Render(SCREEN_WIDTH-175,SCREEN_HEIGHT-175);
+			gDanzeff->Render(SCREEN_WIDTH_F-175,SCREEN_HEIGHT_F-175);
+		}
+		else if (gTextInput->mIsActive) {
+			gFont->DrawShadowedString(tempname, 160 + 10, 140);
+			gFont->DrawShadowedString("|", 160 + 10 + gFont->GetStringWidth(tempname), 140);
+			gTextInput->Render(SCREEN_WIDTH_F - 175, SCREEN_HEIGHT_F - 175);
 		}
 	} 
 	else if (mState == CONTROLS) {
-		mRenderer->FillRect(0,30,SCREEN_WIDTH,5,ARGB(100,0,0,0));
-		mRenderer->FillRect(0,35,SCREEN_WIDTH,205,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,30,SCREEN_WIDTH_F,5,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,35,SCREEN_WIDTH_F,205,ARGB(100,0,0,0));
 
 		mRenderer->FillRect(155-62,5,125,25,ARGB(175,0,0,0));
 		mRenderer->FillRect(325-62,5,125,25,ARGB(100,0,0,0));

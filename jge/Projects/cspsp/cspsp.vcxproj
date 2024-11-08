@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{53024371-2293-4D40-8ECF-FCB470B50DA1}</ProjectGuid>
+    <RootNamespace>cspsp</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.35327.3</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\bin</OutDir>
+    <IntDir>.\Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\Cello\Documents\angle\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug</OutDir>
+    <IntDir>.\Debug\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Release/cspsp.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MinSpace</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../../JGE/include;../../JGE/Dependencies/include;../../SDL2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderOutputFile>.\Release/cspsp.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c09</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;libpng.lib;fmodvc.lib;zdll.lib;jge.lib;freetype.lib;ws2_32.lib;wsock32.lib;libjpeg-static-mt.lib;SDL2.lib;SDL2main.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>bin/cspsp.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\JGE\Dependencies\lib;..\..\JGE\lib\win;..\..\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCD;LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ProgramDatabaseFile>.\Release/cspsp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
+      <NoEntryPoint>false</NoEntryPoint>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release/cspsp.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Debug/cspsp.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../JGE/include;../../JGE/Dependencies/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>.\Debug/cspsp.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c09</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;fmodvc.lib;jge_debug.lib;libjpeg-static-mt-debug.lib;freetype.lib;wsock32.lib;libpngd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>bin/cspsp.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\JGE\Dependencies\lib;..\..\JGE\lib\win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCD;LIBC;MSVCRT;LIBCMTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug/cspsp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug/cspsp.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AI.cpp" />
+    <ClCompile Include="src\Animation.cpp" />
+    <ClCompile Include="src\AStar.cpp" />
+    <ClCompile Include="src\Bullet.cpp" />
+    <ClCompile Include="src\BulletOnline.cpp" />
+    <ClCompile Include="src\BuyMenu.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Collision.cpp" />
+    <ClCompile Include="src\Danzeff.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\GameApp.cpp" />
+    <ClCompile Include="src\GameLauncher.cpp" />
+    <ClCompile Include="src\GameState.cpp" />
+    <ClCompile Include="src\GameStateConnect.cpp" />
+    <ClCompile Include="src\GameStateLoading.cpp" />
+    <ClCompile Include="src\GameStateLobby.cpp" />
+    <ClCompile Include="src\GameStateMenu.cpp" />
+    <ClCompile Include="src\GameStateNewGame.cpp" />
+    <ClCompile Include="src\GameStateOnline.cpp" />
+    <ClCompile Include="src\GameStateOptions.cpp" />
+    <ClCompile Include="src\GameStatePlay.cpp" />
+    <ClCompile Include="src\GameStateSplash.cpp" />
+    <ClCompile Include="src\GameStateUpdate.cpp" />
+    <ClCompile Include="src\Globals.cpp" />
+    <ClCompile Include="src\Grenade.cpp" />
+    <ClCompile Include="src\Grid.cpp" />
+    <ClCompile Include="src\GunObject.cpp" />
+    <ClCompile Include="src\GunObjectOnline.cpp" />
+    <ClCompile Include="src\HttpManager.cpp" />
+    <ClCompile Include="src\Hud.cpp" />
+    <ClCompile Include="src\idstorage.c" />
+    <ClCompile Include="src\ListBox.cpp" />
+    <ClCompile Include="src\MenuItem.cpp" />
+    <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\Packet.cpp" />
+    <ClCompile Include="src\Particle.cpp" />
+    <ClCompile Include="src\ParticleEngine.cpp" />
+    <ClCompile Include="src\Person.cpp" />
+    <ClCompile Include="src\PersonOnline.cpp" />
+    <ClCompile Include="src\SfxManager.cpp" />
+    <ClCompile Include="src\TeamMenu.cpp" />
+    <ClCompile Include="src\TileMap.cpp" />
+    <ClCompile Include="src\UdpManager.cpp" />
+    <ClCompile Include="src\Wlan.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bin\data\animations.txt" />
+    <Text Include="bin\data\config.txt" />
+    <Text Include="bin\data\favorites.txt" />
+    <Text Include="bin\data\guns.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+    <None Include="Makefile.1xx" />
+    <None Include="Makefile.3xx" />
+    <None Include="mk.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\AI.h" />
+    <ClInclude Include="src\Animation.h" />
+    <ClInclude Include="src\AStar.h" />
+    <ClInclude Include="src\Bullet.h" />
+    <ClInclude Include="src\BulletOnline.h" />
+    <ClInclude Include="src\BuyMenu.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Collision.h" />
+    <ClInclude Include="src\Danzeff.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\GameApp.h" />
+    <ClInclude Include="src\GameState.h" />
+    <ClInclude Include="src\GameStateConnect.h" />
+    <ClInclude Include="src\GameStateLoading.h" />
+    <ClInclude Include="src\GameStateLobby.h" />
+    <ClInclude Include="src\GameStateMenu.h" />
+    <ClInclude Include="src\GameStateNewGame.h" />
+    <ClInclude Include="src\GameStateOnline.h" />
+    <ClInclude Include="src\GameStateOptions.h" />
+    <ClInclude Include="src\GameStatePlay.h" />
+    <ClInclude Include="src\GameStateSplash.h" />
+    <ClInclude Include="src\GameStateUpdate.h" />
+    <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Grenade.h" />
+    <ClInclude Include="src\Grid.h" />
+    <ClInclude Include="src\GunObject.h" />
+    <ClInclude Include="src\GunObjectOnline.h" />
+    <ClInclude Include="src\HttpManager.h" />
+    <ClInclude Include="src\Hud.h" />
+    <ClInclude Include="src\ListBox.h" />
+    <ClInclude Include="src\Menu.h" />
+    <ClInclude Include="src\MenuItem.h" />
+    <ClInclude Include="src\MeshEffect.h" />
+    <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\Packet.h" />
+    <ClInclude Include="src\Particle.h" />
+    <ClInclude Include="src\ParticleEngine.h" />
+    <ClInclude Include="src\Person.h" />
+    <ClInclude Include="src\PersonOnline.h" />
+    <ClInclude Include="src\SfxManager.h" />
+    <ClInclude Include="src\TeamMenu.h" />
+    <ClInclude Include="src\TileMap.h" />
+    <ClInclude Include="src\UdpManager.h" />
+    <ClInclude Include="src\Wlan.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

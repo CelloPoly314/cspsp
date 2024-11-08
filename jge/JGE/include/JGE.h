@@ -13,7 +13,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+<<<<<<< HEAD
+#include <string>
+=======
 #include <string.h>
+>>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 #include <stdarg.h>
 
 #include "JTypes.h"
@@ -30,6 +34,11 @@
 	BOOL JGEGetKeyState(int key);
 	bool JGEGetButtonState(u32 button);
 	bool JGEGetButtonClick(u32 button);
+	u8 JGEGetAnalogX();
+	u8 JGEGetAnalogY();
+	void JGEGetMouseMovement(int *x, int *y);
+	std::string JGEGetTextInput();
+	BOOL isUsingKeyboard();
 
 #else
 
@@ -180,6 +189,20 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	u8 GetAnalogY();
 
+	//////////////////////////////////////////////////////////////////////////
+	/// Get relative mouse movement since previous time this is called
+	///
+	/// @param x - pointer for x 
+	/// @param y - pointer for y 
+	//////////////////////////////////////////////////////////////////////////
+	void GetMouseMovement(int* x, int* y);
+
+	//////////////////////////////////////////////////////////////////////////
+	/// Get characters typed since last update
+	///
+	/// @return text typed in input
+	//////////////////////////////////////////////////////////////////////////
+	std::string GetTextInput();
 
 	//////////////////////////////////////////////////////////////////////////
 	/// Get if the system is ended or not.

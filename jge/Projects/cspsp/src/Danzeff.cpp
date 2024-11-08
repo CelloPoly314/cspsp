@@ -213,17 +213,19 @@ void Danzeff::Render(float x, float y)
 
 		quad = new JQuad(keyBits[4*mode + shiftint*2],0.0f,0.0f,150.0f,150.0f);
 		mRenderer->RenderQuad(quad,x,y);
+		DrawOffset(keyBits[4 * mode + shiftint * 2 + 1], x, y, selected_x * 50, selected_y * 50, selected_x * 71, selected_y * 71, 56, 56);
 	} 
 	else {
 		quad = new JQuad(keyBits[4*mode + shiftint*2],0.0f,0.0f,150.0f,150.0f);
 		quad->SetColor(ARGB(128,255,255,255));
 		mRenderer->RenderQuad(quad,x,y);
+		DrawOffset(keyBits[4 * mode + shiftint * 2 + 1], x, y, selected_x * 43, selected_y * 43, selected_x * 64, selected_y * 64, 64, 64);
 	}
 	if (quad) {
 		delete quad;
 	}
 
-	DrawOffset(keyBits[4*mode + shiftint*2 + 1],x,y,selected_x*43,selected_y*43,selected_x*64,selected_y*64,64,64);
+	//DrawOffset(keyBits[4*mode + shiftint*2 + 1],x,y,selected_x*43,selected_y*43,selected_x*64,selected_y*64,64,64);
 
 	mRenderer->FillRect(x,y-27.0f,150.0f,27.0f,ARGB(200,50,50,50));
 	gFont->SetBase(0);

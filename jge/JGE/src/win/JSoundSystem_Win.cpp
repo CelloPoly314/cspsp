@@ -159,7 +159,7 @@ void JSoundSystem::PlayMusic(JMusic *music, bool looping)
 	if (music && music->mTrack)
 	{
 		mChannel = FSOUND_PlaySound(FSOUND_FREE, music->mTrack);
-
+		FSOUND_SetVolume(mChannel,100);
 		if (looping)
 			FSOUND_SetLoopMode(mChannel, FSOUND_LOOP_NORMAL);
 		else
@@ -231,7 +231,7 @@ void JSoundSystem::PlaySample(JSample *sample)
 	if (sample && sample->mSample)
 		sample->mVoice = FSOUND_PlaySound(FSOUND_FREE, sample->mSample);
 
-	FSOUND_SetVolume(sample->mVoice,sample->mVolume);
+	FSOUND_SetVolume(sample->mVoice,50);
 	FSOUND_SetPan(sample->mVoice,sample->mPanning);
 }
 

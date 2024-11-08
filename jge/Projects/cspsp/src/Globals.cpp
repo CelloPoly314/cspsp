@@ -74,6 +74,7 @@ ParticleEngine* gParticleEngine;
 hgeParticleSystem* gParticleSystems[3];
 SfxManager* gSfxManager;
 Danzeff* gDanzeff;
+JTextInput* gTextInput;
 Socket* gSocket;
 HttpManager* gHttpManager;
 
@@ -303,9 +304,11 @@ void UpdateIcon(JTexture* texture, unsigned char* data) {
 			if (data[i] == 255 && data[i+2] == 255 && data[i+1] == 0) {
 				a = 0;
 			}
-			bits[(9-y)*10+x] = ARGB(a,data[i+2],data[i+1],data[i]);
+			//bits[(9-y)*10+x] = ARGB(a,data[i+2],data[i+1],data[i]);
+			bits[(9 - y) * 10 + x] = ARGB(a, data[i], data[i + 1], data[i + 2]);
 			i += 3;
 		}
 	}
+	
 	texture->UpdateBits(0,0,10,10,bits);
 }

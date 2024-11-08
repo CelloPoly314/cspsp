@@ -23,12 +23,12 @@ JApp* JGameLauncher::GetGameApp()
 //-------------------------------------------------------------------------------------
 char *JGameLauncher::GetName()
 {
-	return "template_desc";
+	return "CSPSP";
 }
 
 
 //-------------------------------------------------------------------------------------
 u32 JGameLauncher::GetInitFlags()
 {
-	return JINIT_FLAG_ENABLE3D;
+	return JINIT_FLAG_NORMAL;
 }

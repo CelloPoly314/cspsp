@@ -16,6 +16,10 @@
 #include "../include/JResourceManager.h"
 #include "../include/JFileSystem.h"
 //#include "../include/JParticleSystem.h"
+<<<<<<< HEAD
+using namespace std;
+=======
+>>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,21 +137,42 @@ bool JGE::GetButtonClick(u32 button)
 }
 
 
-u8 JGE::GetAnalogX()
-{
-	if (JGEGetKeyState('A')) return 0;
-	if (JGEGetKeyState('D')) return 0xff;
+//u8 JGE::GetAnalogX()
+//{
+//	if (JGEGetKeyState('A')) return 0;
+//	if (JGEGetKeyState('D')) return 0xff;
+//
+//	return 0x80;
+//}
+//
+//
+//u8 JGE::GetAnalogY()
+//{
+//	if (JGEGetKeyState('W')) return 0;
+//	if (JGEGetKeyState('S')) return 0xff;
+//
+//	return 0x80;
+//}
 
-	return 0x80;
+ u8 JGE::GetAnalogX()
+ {
+ 	return JGEGetAnalogX();
+ }
+
+
+ u8 JGE::GetAnalogY()
+ {
+ 	return JGEGetAnalogY();
+ }
+
+void JGE::GetMouseMovement(int *x, int *y)
+{
+	JGEGetMouseMovement(x, y);
 }
 
-
-u8 JGE::GetAnalogY()
+string JGE::GetTextInput()
 {
-	if (JGEGetKeyState('W')) return 0;
-	if (JGEGetKeyState('S')) return 0xff;
-
-	return 0x80;
+	return JGEGetTextInput();
 }
 
 

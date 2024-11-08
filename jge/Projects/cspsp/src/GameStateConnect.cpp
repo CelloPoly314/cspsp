@@ -78,19 +78,19 @@ void GameStateConnect::Create()
 	#endif
 
 
-	mConnectionsListBox = new ListBox(0,35,SCREEN_WIDTH,200,25,8);
+	mConnectionsListBox = new ListBox(0,35,SCREEN_WIDTH_F,200,25,8);
 
 	#ifdef WIN32
 	
-	for (int i=0; i<9; i++) {
-		char buffer[10];
-		sprintf(buffer,"test%d",i);
-		ConnectionConfig c;
-		strcpy(c.name,buffer);
-		c.index = i;
-		//mConnections.push_back(c);
-		mConnectionsListBox->AddItem(new ConnectionItem(c));
-	}
+	// for (int i=0; i<9; i++) {
+	// 	char buffer[10];
+	// 	sprintf(buffer,"test%d",i);
+	// 	ConnectionConfig c;
+	// 	strcpy(c.name,buffer);
+	// 	c.index = i;
+	// 	//mConnections.push_back(c);
+	// 	mConnectionsListBox->AddItem(new ConnectionItem(c));
+	// }
 	#else
 
 	std::vector<ConnectionConfig> connections = GetConnectionConfigs();
@@ -100,7 +100,7 @@ void GameStateConnect::Create()
 
 	#endif
 
-	FormatText(mInstructions,instructions,SCREEN_WIDTH-40,0.75f);
+	FormatText(mInstructions,instructions,SCREEN_WIDTH_F-40,0.75f);
 	mStage = STAGE_SELECT;
 	strcpy(mSuspendReason,"");
 	mSuspendHours = 0;
@@ -154,7 +154,8 @@ void GameStateConnect::Start()
 	strcpy(password,"");
 	mLoginStatus = 0;
 
-	mStage = STAGE_SELECT;
+	//mStage = STAGE_SELECT;
+	mStage = STAGE_CONNECTING;
 	mRenderer->EnableVSync(true);
 
 	mInfoX = -400.0f;
@@ -195,7 +196,7 @@ void GameStateConnect::Update(float dt)
 	}
 
 	if (mStage != STAGE_NEWACCOUNTSUBMIT) {
-		if (mEngine->GetButtonClick(PSP_CTRL_CIRCLE) && !gDanzeff->mIsActive) {
+		if (mEngine->GetButtonClick(PSP_CTRL_CIRCLE) && !gDanzeff->mIsActive && !gTextInput->mIsActive) {
 			if (mStage == STAGE_SELECT) {
 				mParent->SetNextState(GAME_STATE_MENU);
 			}
@@ -212,7 +213,8 @@ void GameStateConnect::Update(float dt)
 			mLoginStatus = 0;
 			gHttpManager->ClearRequests();
 
-			mStage = STAGE_SELECT;
+			//mStage = STAGE_SELECT;
+			mParent->SetNextState(GAME_STATE_MENU);
 			return;
 		}
 	}
@@ -243,9 +245,9 @@ void GameStateConnect::Update(float dt)
 		if (mEngine->GetButtonClick(PSP_CTRL_CROSS)) {
 			ConnectionItem *item = (ConnectionItem*)mConnectionsListBox->GetItem();
 			if (item != NULL) {
-				WlanInit();
-				mConnectId = item->config.index;
-				mConnectState = UseConnectionConfig(mConnectId);
+				//WlanInit();
+				//mConnectId = item->config.index;
+				//mConnectState = UseConnectionConfig(mConnectId);
 				mStage = STAGE_CONNECTING;
 			}
 		}
@@ -253,10 +255,20 @@ void GameStateConnect::Update(float dt)
 	}
 	else if (mStage == STAGE_CONNECTING) {
 		#ifdef WIN32
-		mConnectState = 0;
-		if (mEngine->GetButtonClick(PSP_CTRL_CROSS)) {
+		//mConnectState = 0;
+		//WlanInit();
+		if (WlanInit() == 0) {
+			// 初始化成功
 			mConnectState = 4;
 		}
+		else {
+			// 初始化失敗
+			mConnectState = -1;
+		}
+		
+		/*if (mEngine->GetButtonClick(PSP_CTRL_CROSS)) {
+			mConnectState = 4;
+		}*/
 		#else
 		mConnectState = GetConnectionState(mConnectState);
 		#endif
@@ -273,7 +285,7 @@ void GameStateConnect::Update(float dt)
 
 			#ifdef WIN32
 			FILE *file = fopen("MEMSTICK_PRO.IND", "r");
-			strcpy(id,"E06F4A74CA7CA08D552B1300B3650C64AC31FA5CDAA624F2C6C57C492401B863ECEE7314608AED3E7438AE09FAA9A1409E03577672700249000000010004000108056F8AD91D559EC64C8C5BA3282157AA247DA4D22C98D55D36708DFC0FF598E1163E1F4124AE271D0BB32B893DE4C7326CC96173C66A5E65360603ACEB93DD42C6D8C8138DA35DDF3E3490F6A82D5D86C29D3502B141284004C80BD9C8BA38221065923E324B5F0EC165ED6CFF7D9F2C420B84DFDA6E96C0AEE29927BCAF1E6EC5DAF161F2902432905CA42CCDD8FF345916DD5935A4EB4603BA7BE5D1AD804D9F4A9D2A2266B674334B0406917F77000000010004000108056F8AD91D559E9AA7579C521C76FFF9546AE3A65208F003E21C1033EC57BCBC4A79147F358E114F16FEE2928CE0F397413560A685A14E7D99C2DE88AB2596412A0053C7BB57A3CE474DD19AF99D014128F5AE15CED42306485FD029853B552F7EFDD67A2DE7A1A4E25537B2459D8786426D5B27EFA5A9311CB8ABABFA0ECE07DB46DD4D743B0A2AE53B501EFAC8BCACC419CF4C2339102F1CB8B96E0EB7B07002E6F97ECECD631A1663F0B6C994FF000000010004000108056F8AD91D559E76FACBE8D8C0F7EF5A3F498223FFB0BE013B02A456E4F1E9A0BA6985B2DCF1429B4EDEB10B50523AB87EAF0A00C95B46E2BE7A445D0B1E6A0A103559D656BBEAB007DFF6BFFC2911"); //last 1 should be a 0
+			//strcpy(id,"E06F4A74CA7CA08D552B1300B3650C64AC31FA5CDAA624F2C6C57C492401B863ECEE7314608AED3E7438AE09FAA9A1409E03577672700249000000010004000108056F8AD91D559EC64C8C5BA3282157AA247DA4D22C98D55D36708DFC0FF598E1163E1F4124AE271D0BB32B893DE4C7326CC96173C66A5E65360603ACEB93DD42C6D8C8138DA35DDF3E3490F6A82D5D86C29D3502B141284004C80BD9C8BA38221065923E324B5F0EC165ED6CFF7D9F2C420B84DFDA6E96C0AEE29927BCAF1E6EC5DAF161F2902432905CA42CCDD8FF345916DD5935A4EB4603BA7BE5D1AD804D9F4A9D2A2266B674334B0406917F77000000010004000108056F8AD91D559E9AA7579C521C76FFF9546AE3A65208F003E21C1033EC57BCBC4A79147F358E114F16FEE2928CE0F397413560A685A14E7D99C2DE88AB2596412A0053C7BB57A3CE474DD19AF99D014128F5AE15CED42306485FD029853B552F7EFDD67A2DE7A1A4E25537B2459D8786426D5B27EFA5A9311CB8ABABFA0ECE07DB46DD4D743B0A2AE53B501EFAC8BCACC419CF4C2339102F1CB8B96E0EB7B07002E6F97ECECD631A1663F0B6C994FF000000010004000108056F8AD91D559E76FACBE8D8C0F7EF5A3F498223FFB0BE013B02A456E4F1E9A0BA6985B2DCF1429B4EDEB10B50523AB87EAF0A00C95B46E2BE7A445D0B1E6A0A103559D656BBEAB007DFF6BFFC2911"); //last 1 should be a 0
 			strcpy(psid,"00000000000000000000000000000001");
 			//strcpy(psid,"5C8A0D44FC6D3632D611A61D85DB0E49");
 			#else
@@ -338,7 +350,7 @@ void GameStateConnect::Update(float dt)
 	else if (mStage == STAGE_NEWACCOUNT) {
 		mInfoX *= 0.75f;
 
-		if (!gDanzeff->mIsActive) {
+		if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
 			int temp = index;
 			if (mEngine->GetButtonState(PSP_CTRL_UP) || mEngine->GetAnalogY()<64) {
 				if (KeyRepeated(PSP_CTRL_UP,dt)) {
@@ -365,13 +377,26 @@ void GameStateConnect::Update(float dt)
 
 			if (mEngine->GetButtonClick(PSP_CTRL_CROSS)) {
 				if (index == 0) {
-					gDanzeff->Enable();
-					gDanzeff->mString = name;
+					if (!isUsingKeyboard()) {
+						gDanzeff->Enable();
+						gDanzeff->mString = name;
+					}
+					else {
+						gTextInput->Enable();
+						gTextInput->mString = name;
+					}
+
 					tempname = name;
 				}
 				else if (index == 1) {
-					gDanzeff->Enable();
-					gDanzeff->mString = password;
+					if (!isUsingKeyboard()) {
+						gDanzeff->Enable();
+						gDanzeff->mString = password;
+					}
+					else {
+						gTextInput->Enable();
+						gTextInput->mString = password;
+					}
 					temppassword = password;
 				}
 				else if (index == 4-1) {
@@ -443,6 +468,38 @@ void GameStateConnect::Update(float dt)
 			}
 			else if (mEngine->GetButtonClick(PSP_CTRL_SELECT)) {
 				gDanzeff->Disable();
+			}
+		}
+		else if (gTextInput->mIsActive) {
+			gTextInput->Update(dt);
+			if (gTextInput->mString.length() > 15) {
+				gTextInput->mString = gTextInput->mString.substr(0, 15);
+			}
+			if (gTextInput->mString.length() > 0) {
+				char character = gTextInput->mString[gTextInput->mString.length() - 1];
+				if (character == ' ' || character == ':' || character == '[' || character == ']') {
+					gTextInput->mString = gTextInput->mString.substr(0, gTextInput->mString.length() - 1);
+				}
+			}
+
+			if (index == 0) {
+				tempname = (char*)gTextInput->mString.c_str();
+			}
+			if (index == 1) {
+				temppassword = (char*)gTextInput->mString.c_str();
+			}
+
+			if (mEngine->GetButtonClick(PSP_CTRL_START)) {
+				if (index == 0) {
+					strcpy(name, tempname);
+				}
+				if (index == 1) {
+					strcpy(password, temppassword);
+				}
+				gTextInput->Disable();
+			}
+			else if (mEngine->GetButtonClick(PSP_CTRL_SELECT)) {
+				gTextInput->Disable();
 			}
 		}
 	}
@@ -528,13 +585,16 @@ void GameStateConnect::Render()
 		gFont->DrawShadowedString("Network Connection",20,10);
 		gFont->SetScale(0.75f);
 
-		mRenderer->FillRect(0,35,SCREEN_WIDTH,200,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,35,SCREEN_WIDTH_F,200,ARGB(100,0,0,0));
 
-		gFont->DrawShadowedString("[X] Select Connection     [O] Return to Menu", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+		//gFont->DrawShadowedString("[X] Select Connection     [O] Return to Menu", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 
 		gFont->SetScale(1.0f);
 		if (mConnectionsListBox->IsEmpty()) {
+			#ifdef WIN32
+			#else
 			gFont->DrawShadowedString("No network connections.",SCREEN_WIDTH_2,SCREEN_HEIGHT_2,JGETEXT_CENTER);
+			#endif
 		}
 		else {
 			mConnectionsListBox->Render();
@@ -542,7 +602,7 @@ void GameStateConnect::Render()
 		gFont->SetScale(0.75f);
 
 		if (mStage != STAGE_SELECT) {
-			mRenderer->FillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,ARGB(200,0,0,0));
+			mRenderer->FillRect(0,0,SCREEN_WIDTH_F,SCREEN_HEIGHT_F,ARGB(200,0,0,0));
 			gFont->SetColor(ARGB(255,255,255,255));
 			gFont->SetScale(0.75f);
 		}
@@ -603,20 +663,20 @@ void GameStateConnect::Render()
 
 	else if (mStage == STAGE_NEWACCOUNT || mStage == STAGE_NEWACCOUNTSUBMIT) {
 		int starty = 115;
-		mRenderer->FillRect(0,starty,SCREEN_WIDTH,100,ARGB(100,0,0,0));
-		mRenderer->FillRect(0,starty+100,SCREEN_WIDTH,30,ARGB(175,0,0,0));
+		mRenderer->FillRect(0,starty,SCREEN_WIDTH_F,100,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,starty+100,SCREEN_WIDTH_F,30,ARGB(175,0,0,0));
 
 		gFont->SetScale(0.75f);
 		for (int i=0; i<mInstructions.size(); i++) {
 			gFont->DrawShadowedString(mInstructions[i], 20, 20+i*15);
 		}
 
-		if (!gDanzeff->mIsActive) {
-			mRenderer->FillRect(0,starty+index*25,SCREEN_WIDTH,25,ARGB(255,0,0,0));
+		if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
+			mRenderer->FillRect(0,starty+index*25,SCREEN_WIDTH_F,25,ARGB(255,0,0,0));
 			gFont->DrawShadowedString("[X] Select     [O] Return",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 		}
 		else {
-			mRenderer->FillRect(0,starty+index*25,SCREEN_WIDTH,25,ARGB(100,0,128,255));
+			mRenderer->FillRect(0,starty+index*25,SCREEN_WIDTH_F,25,ARGB(100,0,128,255));
 			gFont->DrawShadowedString("[START] Enter    [SELECT] Cancel",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 		}
 
@@ -644,7 +704,7 @@ void GameStateConnect::Render()
 		gFont->SetColor(ARGB(255,255,255,255));
 
 		int startx = 160+10;
-		if (!gDanzeff->mIsActive) {
+		if (!gTextInput->mIsActive && !gDanzeff->mIsActive) {
 			gFont->DrawShadowedString(name,startx,starty+5);
 			gFont->DrawShadowedString(password,startx,starty+5+25);
 		}
@@ -661,22 +721,37 @@ void GameStateConnect::Render()
 				gFont->DrawShadowedString(temppassword,startx,starty+5+25);
 				gFont->DrawShadowedString("|",startx+gFont->GetStringWidth(temppassword),starty+5+25);
 			}
-			gDanzeff->Render(SCREEN_WIDTH-175,SCREEN_HEIGHT-175);
+			gDanzeff->Render(SCREEN_WIDTH_F-175,SCREEN_HEIGHT_F-175);
+		}
+		else if (gTextInput->mIsActive) {
+			if (index == 0) {
+				gFont->DrawShadowedString(password, startx, starty + 5 + 25);
+
+				gFont->DrawShadowedString(tempname, startx, starty + 5);
+				gFont->DrawShadowedString("|", startx + gFont->GetStringWidth(tempname), starty + 5);
+			}
+			else if (index == 1) {
+				gFont->DrawShadowedString(name, startx, starty + 5);
+
+				gFont->DrawShadowedString(temppassword, startx, starty + 5 + 25);
+				gFont->DrawShadowedString("|", startx + gFont->GetStringWidth(temppassword), starty + 5 + 25);
+			}
+			gTextInput->Render(SCREEN_WIDTH_F - 175, SCREEN_HEIGHT_F - 175);
 		}
 
 		if (mStage == STAGE_NEWACCOUNTSUBMIT) {
-			mRenderer->FillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,ARGB(200,0,0,0));
+			mRenderer->FillRect(0,0,SCREEN_WIDTH_F,SCREEN_HEIGHT_F,ARGB(200,0,0,0));
 
 			gFont->SetScale(0.75f);
 			gFont->SetColor(ARGB(255,255,255,255));
 			if (mLoginStatus == 0) {
-				gFont->DrawShadowedString("[O] Cancel", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+				gFont->DrawShadowedString("[O] Cancel", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 
 				gFont->SetScale(1.0f);
 				gFont->DrawShadowedString("Signing in...",SCREEN_WIDTH_2,SCREEN_HEIGHT_2,JGETEXT_CENTER);
 			}
 			/*else if (mNewAccountStatus == 0) {
-				gFont->DrawShadowedString("[X/O] Continue to Online Menu", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+				gFont->DrawShadowedString("[X/O] Continue to Online Menu", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 
 				gFont->SetScale(1.0f);
 				char buffer[128];
@@ -684,13 +759,13 @@ void GameStateConnect::Render()
 				gFont->DrawShadowedString(gName,SCREEN_WIDTH_2,SCREEN_HEIGHT_2+10.0f,JGETEXT_CENTER);
 			}*/
 			else if (mLoginStatus == 5) {
-				gFont->DrawShadowedString("[O] Return", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+				gFont->DrawShadowedString("[O] Return", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 
 				gFont->SetScale(1.0f);
 				gFont->DrawShadowedString("Name already exists / Wrong password",SCREEN_WIDTH_2,SCREEN_HEIGHT_2,JGETEXT_CENTER);
 			}
 			else {
-				gFont->DrawShadowedString("[O] Return", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+				gFont->DrawShadowedString("[O] Return", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 
 				gFont->SetScale(1.0f);
 				gFont->DrawShadowedString("Unspecified error. Please retry.",SCREEN_WIDTH_2,SCREEN_HEIGHT_2,JGETEXT_CENTER);

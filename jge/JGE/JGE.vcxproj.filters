@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{cebd19de-90ad-47f2-82d6-f0a99ab62f79}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Source Files\HGE">
+      <UniqueIdentifier>{c6aa0142-6aeb-4d5e-8eb4-86ccee00831c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TinyXML">
+      <UniqueIdentifier>{c2b17a87-a988-4a45-af88-d2191e9b6d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{a0fb6757-c14b-46fa-a5bf-27f1a0af1a00}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Header Files\HGE">
+      <UniqueIdentifier>{47ddb8ff-9c09-4bd8-b6a6-2421ca7abb83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{81677de2-8e76-419f-923a-499294b866c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unzip">
+      <UniqueIdentifier>{ebdb1543-bd71-4c04-8c98-8ec1b2228b5e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Encoding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JAnimator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JDistortionMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JGameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JGBKFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JGE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JGui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JInputSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JLBFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JMD2Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JOBJModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JParticle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JParticleEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JParticleEmitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win\JRenderer_Win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win\JSoundSystem_Win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JSpline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JSprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JTTFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Vector2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\winmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgecolor.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgedistort.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgefont.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgeparticle.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgepmanager.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgerect.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hge\hgevector.cpp">
+      <Filter>Source Files\HGE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml\tinystr.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml\tinyxml.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unzip\ioapi.c">
+      <Filter>Unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unzip\mztools.c">
+      <Filter>Unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unzip\unzip.c">
+      <Filter>Unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JTextInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\tinyxml\tinystr.h">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyxml\tinyxml.h">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hge\hgecolor.h">
+      <Filter>Header Files\HGE</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hge\hgedistort.h">
+      <Filter>Header Files\HGE</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hge\hgefont.h">
+      <Filter>Header Files\HGE</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hge\hgeparticle.h">
+      <Filter>Header Files\HGE</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hge\hgerect.h">
+      <Filter>Header Files\HGE</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hge\hgevector.h">
+      <Filter>Header Files\HGE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unzip\crypt.h">
+      <Filter>Unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unzip\ioapi.h">
+      <Filter>Unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unzip\mztools.h">
+      <Filter>Unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unzip\unzip.h">
+      <Filter>Unzip</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="Makefile.1xx">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="Makefile.3xx">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="Makefile.hge">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="..\Tutorials\02.RenderingImages\Images.sln" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt">
+      <Filter>Misc</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

@@ -43,7 +43,7 @@ void GameStatePlay::Create()
 		mGuiController->Add(new MenuItem(2, gFont, "restart round", SCREEN_WIDTH_2, 125, TYPE_MAIN, JGETEXT_CENTER));
 		mGuiController->Add(new MenuItem(3, gFont, "change teams", SCREEN_WIDTH_2, 150, TYPE_MAIN, JGETEXT_CENTER));
 		mGuiController->Add(new MenuItem(4, gFont, "leave game", SCREEN_WIDTH_2, 175, TYPE_MAIN, JGETEXT_CENTER));
-		//mGuiController->Add(new MenuItem(4, gFont, "quit", SCREEN_WIDTH-20, 240, TYPE_MAIN, JGETEXT_RIGHT));
+		//mGuiController->Add(new MenuItem(4, gFont, "quit", SCREEN_WIDTH_F-20, 240, TYPE_MAIN, JGETEXT_RIGHT));
 	}
 
 	//mMusic = mSoundSystem->LoadMusic("sfx/Raindrops.mp3");
@@ -313,6 +313,13 @@ void GameStatePlay::CheckInput(float dt)
 		mPlayer->RotateFacing(0.005f*dt);
 	}
 
+	// rotate with mouse
+	int deltaMouseX, deltaMouseY;
+	mEngine->GetMouseMovement(&deltaMouseX, &deltaMouseY);
+	if (deltaMouseX != 0 || deltaMouseY != 0)
+		mPlayer->MoveCursor(deltaMouseX, deltaMouseY, dt);
+
+
 	/*if (mPlayer->mGunIndex == PRIMARY || mPlayer->mGunIndex == KNIFE) {
 		if (mEngine->GetButtonState(PSP_CTRL_CROSS) && !cross)
 		{
@@ -542,7 +549,7 @@ void GameStatePlay::Update(float dt)
 
 	if (mEngine->GetButtonClick(PSP_CTRL_START))
 	{
-		if (!gDanzeff->mIsActive) {
+		if (!gTextInput->mIsActive &&  !gDanzeff->mIsActive) {
 			mGuiController->SetActive(!mGuiController->IsActive());
 		}
 		//return;
@@ -644,6 +651,31 @@ void GameStatePlay::Update(float dt)
 			
 			StopInput();
 		}
+	else if (gTextInput->mIsActive) {
+		gTextInput->Update(dt);
+		if (gTextInput->mString.length() > 31) {
+			gTextInput->mString = gTextInput->mString.substr(0, 31);
+		}
+		strcpy(mChatString, gTextInput->mString.c_str());
+
+		if (mEngine->GetButtonState(PSP_CTRL_START)) {
+			if (strlen(mChatString) > 0) {
+				if (mIsChatEnabled) {
+					mHud->AddChatEvent(mPlayer->mName, mChatString, mPlayer->mTeam, mPlayer->mState == DEAD, mIsTeamOnlyChat);
+					mChatTimer += 2000.0f;
+				}
+				else {
+					mHud->AddMessageEvent("Don't spam the chat");
+				}
+			}
+			gTextInput->Disable();
+		}
+		else if (mEngine->GetButtonState(PSP_CTRL_SELECT)) {
+			gTextInput->Disable();
+		}
+
+		StopInput();
+	}
 	else if (mBuyMenu->mIsActive) {
 		mBuyMenu->Update(dt);
 		if (mBuyMenu->mIsSelected) {
@@ -660,12 +692,22 @@ void GameStatePlay::Update(float dt)
 	else {
 		if (!mEngine->GetButtonState(PSP_CTRL_SELECT)) {
 			if (mEngine->GetButtonClick(PSP_CTRL_UP)) {
-				gDanzeff->Enable();
+				if (!isUsingKeyboard()) {
+					gDanzeff->Enable();
+				}
+				else {
+					gTextInput->Enable();
+				}
 				strcpy(mChatString,"");
 				mIsTeamOnlyChat = false;
 			}
 			else if (mEngine->GetButtonClick(PSP_CTRL_RIGHT)) {
-				gDanzeff->Enable();
+				if (!isUsingKeyboard()) {
+					gDanzeff->Enable();
+				}
+				else {
+					gTextInput->Enable();
+				}
 				strcpy(mChatString,"");
 				mIsTeamOnlyChat = true;
 			}
@@ -811,7 +853,8 @@ void GameStatePlay::NewGame() {
 
 	char* map;
 	#ifdef WIN32
-	map = GetConfig("data/config.txt","map");
+	//map = GetConfig("data/config.txt","map");
+	map = gMapName;
 	#else
 	map = gMapName;
 	#endif

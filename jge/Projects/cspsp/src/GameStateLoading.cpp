@@ -55,9 +55,9 @@ void GameStateLoading::Render()
 
 	mRenderer->RenderQuad(gBgQuad,0,0);
 	mRenderer->RenderQuad(gLogoQuad,0,0);
-	mRenderer->FillRect(SCREEN_WIDTH*p,0,SCREEN_WIDTH*(1-p),SCREEN_HEIGHT,ARGB(200,0,0,0));
+	mRenderer->FillRect(SCREEN_WIDTH_F*p,0,SCREEN_WIDTH_F*(1-p),SCREEN_HEIGHT_F,ARGB(200,0,0,0));
 
-	/*mRenderer->FillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,ARGB(255-(int)(p*255),0,0,0));
+	/*mRenderer->FillRect(0,0,SCREEN_WIDTH_F,SCREEN_HEIGHT_F,ARGB(255-(int)(p*255),0,0,0));
 	mRenderer->FillRect(SCREEN_WIDTH_2-200,SCREEN_HEIGHT_2-4,400,8,ARGB(255,100,100,100));
 	mRenderer->FillRect(SCREEN_WIDTH_2-200,SCREEN_HEIGHT_2-4,400*p,8,ARGB(255,255,255,255));*/
 
@@ -111,7 +111,7 @@ int GameStateLoading::Load(int stage) {
 					gPlayersQuads[i][j][LEGS] = new JQuad(playersTexture,offsetX+0,32,32,32);
 					gPlayersQuads[i][j][LEGS]->SetHotSpot(16,16);
 
-					gPlayersDeadQuads[i][j] = new JQuad(playersDeadTexture,(j+i*4)*32,64,29,47);
+					gPlayersDeadQuads[i][j] = new JQuad(playersDeadTexture,(j+i*4)*32,128,29,47);
 					gPlayersDeadQuads[i][j]->SetHotSpot(14,23);
 				}
 			}
@@ -338,6 +338,7 @@ int GameStateLoading::Load(int stage) {
 			//mParticles = new JParticleSystem(500);
 			//mParticles->SetQuad(mParticlesQuad);
 			gDanzeff = new Danzeff();
+			gTextInput = new JTextInput();
 
 			gSocket = new Socket();
 			gHttpManager = new HttpManager();

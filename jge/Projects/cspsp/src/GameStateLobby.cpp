@@ -17,11 +17,11 @@ void GameStateLobby::Create()
 
 	mGuiController = new JGuiController(100,this);
 	if (mGuiController) {
-		mGuiController->Add(new MenuItem(STAGE_SERVERS, gFont, "servers", SCREEN_WIDTH-20, 130, TYPE_MAIN, JGETEXT_RIGHT, true));
-		mGuiController->Add(new MenuItem(STAGE_FRIENDS, gFont, "friends", SCREEN_WIDTH-20, 155, TYPE_MAIN, JGETEXT_RIGHT));
-		mGuiController->Add(new MenuItem(STAGE_NEWS, gFont, "news", SCREEN_WIDTH-20, 180, TYPE_MAIN, JGETEXT_RIGHT));
-		mGuiController->Add(new MenuItem(STAGE_HELP, gFont, "help", SCREEN_WIDTH-20, 205, TYPE_MAIN, JGETEXT_RIGHT));
-		mGuiController->Add(new MenuItem(-1, gFont, "logout", SCREEN_WIDTH-20, 230, TYPE_MAIN, JGETEXT_RIGHT));
+		mGuiController->Add(new MenuItem(STAGE_SERVERS, gFont, "servers", SCREEN_WIDTH_F-20, 130, TYPE_MAIN, JGETEXT_RIGHT, true));
+		mGuiController->Add(new MenuItem(STAGE_FRIENDS, gFont, "friends", SCREEN_WIDTH_F-20, 155, TYPE_MAIN, JGETEXT_RIGHT));
+		mGuiController->Add(new MenuItem(STAGE_NEWS, gFont, "news", SCREEN_WIDTH_F-20, 180, TYPE_MAIN, JGETEXT_RIGHT));
+		mGuiController->Add(new MenuItem(STAGE_HELP, gFont, "help", SCREEN_WIDTH_F-20, 205, TYPE_MAIN, JGETEXT_RIGHT));
+		mGuiController->Add(new MenuItem(-1, gFont, "logout", SCREEN_WIDTH_F-20, 230, TYPE_MAIN, JGETEXT_RIGHT));
 	}
 
 	mPingSocket = new Socket();
@@ -36,14 +36,14 @@ void GameStateLobby::Create()
 	mServersStage = SERVERSSTAGE_SERVERS;
 	mFriendsStage = FRIENDSSTAGE_FRIENDS;
 
-	mServersListBox = new ListBox(0,51,SCREEN_WIDTH,171,20,8);
-	mFavoritesListBox = new ListBox(0,51,SCREEN_WIDTH,171,20,8);
+	mServersListBox = new ListBox(0,51,SCREEN_WIDTH_F,171,20,8);
+	mFavoritesListBox = new ListBox(0,51,SCREEN_WIDTH_F,171,20,8);
 	mPingListBox = mServersListBox;
 
-	mFriendsListBox = new ListBox(0,51,SCREEN_WIDTH,171,20,8);
-	mPlayersListBox = new ListBox(0,51,SCREEN_WIDTH,171,20,8);
-	mNewsTextBox = new ListBox(0,35,SCREEN_WIDTH,205,15,13,TYPE_TEXT);
-	mHelpTextBox = new ListBox(0,35,SCREEN_WIDTH,205,15,13,TYPE_TEXT);
+	mFriendsListBox = new ListBox(0,51,SCREEN_WIDTH_F,171,20,8);
+	mPlayersListBox = new ListBox(0,51,SCREEN_WIDTH_F,171,20,8);
+	mNewsTextBox = new ListBox(0,35,SCREEN_WIDTH_F,205,15,13,TYPE_TEXT);
+	mHelpTextBox = new ListBox(0,35,SCREEN_WIDTH_F,205,15,13,TYPE_TEXT);
 	mHelpTextBox->AddText(helptext);
 
 	mPlayerInfoTextBox = new ListBox(260,55,220,185,15,12,TYPE_TEXT);
@@ -570,12 +570,12 @@ void GameStateLobby::Render()
 		gFont->SetScale(0.6f);
 		char buffer[128];
 		sprintf(buffer,"%.2f",VERSION);
-		gFont->DrawString(buffer,SCREEN_WIDTH-4,SCREEN_HEIGHT-12,JGETEXT_RIGHT);
+		gFont->DrawString(buffer,SCREEN_WIDTH_F-4,SCREEN_HEIGHT_F-12,JGETEXT_RIGHT);
 
 		gFont->SetColor(ARGB(255,255,255,255));
 		gFont->SetScale(0.75f);
 
-		//gFont->DrawString("[X] Select     [O] Return to Menu", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+		//gFont->DrawString("[X] Select     [O] Return to Menu", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 
 		//char buffer[128];
 		sprintf(buffer,"%s!",gDisplayName);
@@ -615,9 +615,9 @@ void GameStateLobby::Render()
 		for (int i=0; i<strlen(buffer); i++) {
 			char letter[2];
 			sprintf(letter,"%c",buffer[i]);
-			gFont->DrawString(letter,SCREEN_WIDTH-20-3,18+8*i,JGETEXT_CENTER);
+			gFont->DrawString(letter,SCREEN_WIDTH_F-20-3,18+8*i,JGETEXT_CENTER);
 		}
-		//gFont->DrawString("Latest News",SCREEN_WIDTH-20,22,JGETEXT_RIGHT);
+		//gFont->DrawString("Latest News",SCREEN_WIDTH_F-20,22,JGETEXT_RIGHT);
 	
 		if (mLatestNewsLines.size() > 0) {
 			for (int i=0; i<mLatestNewsLines.size(); i++) {
@@ -629,9 +629,9 @@ void GameStateLobby::Render()
 			gFont->DrawShadowedString("Loading...",220+5,22);
 		}
 
-		mRenderer->FillRect(0,128,SCREEN_WIDTH,125,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,128,SCREEN_WIDTH_F,125,ARGB(100,0,0,0));
 		int i = mGuiController->GetCurr();
-		mRenderer->FillRect(0,128+i*25,SCREEN_WIDTH,25,ARGB(255,0,0,0));
+		mRenderer->FillRect(0,128+i*25,SCREEN_WIDTH_F,25,ARGB(255,0,0,0));
 		mGuiController->Render();
 
 		gFont->SetScale(0.75f);
@@ -657,10 +657,10 @@ void GameStateLobby::Render()
 
 		//gFont->SetScale(0.7f);
 		gFont->SetColor(ARGB(255,255,255,255));
-		gFont->DrawShadowedString("Official Website: http://cspsp.appspot.com", 5, SCREEN_HEIGHT-15);
+		gFont->DrawShadowedString("Official Website: http://cspsp.appspot.com", 5, SCREEN_HEIGHT_F-15);
 	}
 	else if (mStage == STAGE_NEWS) {
-		mRenderer->FillRect(0,35,SCREEN_WIDTH,205,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,35,SCREEN_WIDTH_F,205,ARGB(100,0,0,0));
 
 		gFont->DrawShadowedString("[O] Return to Online Menu",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 
@@ -679,17 +679,17 @@ void GameStateLobby::Render()
 	else if (mStage == STAGE_SERVERS) {
 		gFont->SetScale(0.75f);
 		gFont->DrawShadowedString("< [L]",10,10,JGETEXT_LEFT);
-		gFont->DrawShadowedString("[R] >",SCREEN_WIDTH-10,10,JGETEXT_RIGHT);
+		gFont->DrawShadowedString("[R] >",SCREEN_WIDTH_F-10,10,JGETEXT_RIGHT);
 
-		mRenderer->FillRect(0,30,SCREEN_WIDTH,5,ARGB(100,0,0,0));
-		mRenderer->FillRect(0,35,SCREEN_WIDTH,187,ARGB(100,0,0,0));
-		//mRenderer->FillRect(0,35+175,SCREEN_WIDTH,30,ARGB(175,0,0,0));
+		mRenderer->FillRect(0,30,SCREEN_WIDTH_F,5,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,35,SCREEN_WIDTH_F,187,ARGB(100,0,0,0));
+		//mRenderer->FillRect(0,35+175,SCREEN_WIDTH_F,30,ARGB(175,0,0,0));
 
 		gFont->DrawShadowedString("name",20,35);
 		gFont->DrawShadowedString("map",225,35);
 		gFont->DrawShadowedString("players",350,35);
-		gFont->DrawShadowedString("ping",SCREEN_WIDTH-30,35,JGETEXT_RIGHT);
-		mRenderer->DrawLine(0,50,SCREEN_WIDTH,50,ARGB(255,255,255,255));
+		gFont->DrawShadowedString("ping",SCREEN_WIDTH_F-30,35,JGETEXT_RIGHT);
+		mRenderer->DrawLine(0,50,SCREEN_WIDTH_F,50,ARGB(255,255,255,255));
 
 		if (mServersStage == SERVERSSTAGE_SERVERS) {
 			mRenderer->FillRect(155-62,5,125,25,ARGB(100,0,0,0));
@@ -740,22 +740,22 @@ void GameStateLobby::Render()
 
 		if (mPingList->size() > 0) {
 			if (mIsPinging) {
-				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT-30-27,200,4,ARGB(255,100,100,100));
-				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT-30-27,200*((float)mPingIndex/(float)mPingList->size()),4,ARGB(255,255,255,255));
+				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT_F-30-27,200,4,ARGB(255,100,100,100));
+				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT_F-30-27,200*((float)mPingIndex/(float)mPingList->size()),4,ARGB(255,255,255,255));
 			}
 		}
 	}
 	else if (mStage == STAGE_FRIENDS) {
 		gFont->SetScale(0.75f);
 		gFont->DrawShadowedString("< [L]",10,10,JGETEXT_LEFT);
-		gFont->DrawShadowedString("[R] >",SCREEN_WIDTH-10,10,JGETEXT_RIGHT);
+		gFont->DrawShadowedString("[R] >",SCREEN_WIDTH_F-10,10,JGETEXT_RIGHT);
 
-		mRenderer->FillRect(0,30,SCREEN_WIDTH,5,ARGB(100,0,0,0));
-		mRenderer->FillRect(0,35,SCREEN_WIDTH,187,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,30,SCREEN_WIDTH_F,5,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,35,SCREEN_WIDTH_F,187,ARGB(100,0,0,0));
 
 		gFont->DrawShadowedString("name",20,35);
-		gFont->DrawShadowedString("online status",SCREEN_WIDTH-30,35,JGETEXT_RIGHT);
-		mRenderer->DrawLine(0,50,SCREEN_WIDTH,50,ARGB(255,255,255,255));
+		gFont->DrawShadowedString("online status",SCREEN_WIDTH_F-30,35,JGETEXT_RIGHT);
+		mRenderer->DrawLine(0,50,SCREEN_WIDTH_F,50,ARGB(255,255,255,255));
 
 		if (mFriendsStage == FRIENDSSTAGE_FRIENDS) {
 			mRenderer->FillRect(155-62,5,125,25,ARGB(100,0,0,0));
@@ -813,7 +813,7 @@ void GameStateLobby::Render()
 		}
 	}
 	else if (mStage == STAGE_HELP) {
-		mRenderer->FillRect(0,35,SCREEN_WIDTH,205,ARGB(100,0,0,0));
+		mRenderer->FillRect(0,35,SCREEN_WIDTH_F,205,ARGB(100,0,0,0));
 
 		gFont->DrawShadowedString("[O] Return to Online Menu",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 
@@ -827,7 +827,7 @@ void GameStateLobby::Render()
 	else if (mStage == STAGE_PLAYERINFO) {
 		mRenderer->FillRect(0,35,260,205,ARGB(100,0,0,0));
 		mRenderer->FillRect(260,35,220,205,ARGB(175,0,0,0));
-		gFont->DrawShadowedString("[O] Return to Friends", SCREEN_WIDTH_2, SCREEN_HEIGHT-20, JGETEXT_CENTER);
+		gFont->DrawShadowedString("[O] Return to Friends", SCREEN_WIDTH_2, SCREEN_HEIGHT_F-20, JGETEXT_CENTER);
 		gFont->SetScale(1.0f);
 
 		if (mCurrentPlayerInfo != NULL) {
@@ -900,7 +900,7 @@ void GameStateLobby::Render()
 				}
 
 				gFont->DrawShadowedString("Info",275,40);
-				mRenderer->DrawLine(260,54,SCREEN_WIDTH,54,ARGB(255,255,255,255));
+				mRenderer->DrawLine(260,54,SCREEN_WIDTH_F,54,ARGB(255,255,255,255));
 				mPlayerInfoTextBox->Render();
 			}
 			else {

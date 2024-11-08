@@ -1,14 +1,36 @@
 #include "Wlan.h"
 #include <cstring>
+#include <windows.h>
+#include <wininet.h>
+
+#pragma comment(lib, "wininet.lib")
 
 #ifdef WIN32
+
 int WlanInit()
 {
+	// 如果已經初始化過，則不再初始化
 	//if (wlanInitialized) return 0;
-	WSADATA wsaData;	// Windows socket
 
-	// Initialize Winsock
-	if (WSAStartup(MAKEWORD(2,2), &wsaData) == SOCKET_ERROR) {
+	WSADATA wsaData; // Windows socket
+
+	// 初始化 Winsock
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) == SOCKET_ERROR) {
+		return -1;  // 無法初始化 Winsock
+	}
+
+	bool bConnect = InternetCheckConnection("http://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0);
+
+	if (bConnect)
+	{
+		//internet connection exists !
+		return 0;
+	}
+	else
+	{
+		//internet DOES NOT connection exists !
+		WSACleanup();  // 清理 Winsock
+		return -1;
 	}
 
 	wlanInitialized = true;

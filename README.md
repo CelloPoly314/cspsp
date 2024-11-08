@@ -5,6 +5,12 @@
 
 CSPSP is a homebrew game for the Sony PSP, created in 2006 and updated through 2011. It is a 2d top-down shooter heavily based on Counter-Strike, with similar round-based team gameplay and weapon selection. It features fully multiplayer gameplay via community-hosted servers.
 
+<<<<<<< HEAD
+Now we have a PC build! - see the [Releases](https://github.com/CelloPoly314/cspsp/releases) page.
+
+- Website / master server: https://cspsp.appspot.com
+- CSPSP Server application: https://github.com/kevinbchen/cspspserver
+=======
 The game is unfortunately mostly dead now, but for those who are nostalgic, the game is still available to download - see the [Releases](https://github.com/kevinbchen/cspsp/releases) page.
 
 - Website / master server: https://cspsp.appspot.com
@@ -41,3 +47,4 @@ Other developers have also made some really cool ports of CSPSP to other platfor
 - [CSWEB](https://github.com/frankplus/csweb) - WebGL port by @frankplus
   - [Live Demo](https://frankplus.github.io/)
 - [CS3DS](https://github.com/machinamentum/CS3DS) - Nintendo 3DS port by @machinamentum
+>>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c

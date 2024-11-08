@@ -9,14 +9,28 @@
  *		If You've Found This Code Useful, Please Let Me Know.
  *		Visit My Site At nehe.gamedev.net
  */
-#include <stdio.h>
-#include <fcntl.h>
-#include <io.h>
 
+//#include <stdio.h>
+//#include <fcntl.h>
+//#include <io.h>
+//
+//#include <iostream>
+//#include <fstream>
+//#include <map>
+
+#include <chrono>
+#include <stdio.h>
+#include <time.h>
+#include <map>
+#include <functional>
+#include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <windows.h>		// Header File For Windows
+#include <gl\glew.h> 
+
 #include <gl\gl.h>			// Header File For The OpenGL32 Library
 #include <gl\glu.h>			// Header File For The GLu32 Library
 #include <gl\glaux.h>		// Header File For The Glaux Library
@@ -28,6 +42,20 @@
 #include "..\..\JGE\include\JRenderer.h"
 
 #include "..\..\JGE\include\JGameLauncher.h"
+
+#include <SDL.h>
+#include <SDL_mouse.h>
+#include <SDL_syswm.h>
+
+using namespace std;
+using namespace chrono;
+
+SDL_Window* window = NULL;
+SDL_GLContext glContext;
+SDL_Event event;
+SDL_GameController* gameController = nullptr;
+
+
 
 //#include "..\src\GameApp.h"
 
@@ -46,6 +74,11 @@ HINSTANCE	hInstance;		// Holds The Instance Of The Application
 bool	active=TRUE;			// Window Active Flag Set To TRUE By Default
 bool	fullscreen=FALSE;		// Windowed Mode By Default
 
+bool g_isUsingKeyboard = false;
+
+BOOL	done = FALSE;
+
+
 DWORD	lastTickCount;
 
 BOOL	g_keys[256];
@@ -62,68 +95,272 @@ JGameLauncher* g_launcher = NULL;
 static u32 gButtons = 0;
 static u32 gOldButtons = 0;
 
+double analogX = 0;
+double analogY = 0;
+std::string textInput = "";
+//std::vector<bool> keyPressed(256, false);
+//int ScreenW = 2560;
+//int ScreenH = 1440;
+int ScreenW = SCREEN_WIDTH;
+int ScreenH = SCREEN_HEIGHT;
 
-static u32 gPSPKeyMasks[17] =
-{
-	PSP_CTRL_SELECT,
-		PSP_CTRL_START,
-		PSP_CTRL_UP,
-		PSP_CTRL_RIGHT,
-		PSP_CTRL_DOWN,
-		PSP_CTRL_LEFT,
-		PSP_CTRL_LTRIGGER,
-		PSP_CTRL_RTRIGGER,
-		PSP_CTRL_TRIANGLE,
-		PSP_CTRL_CIRCLE,
-		PSP_CTRL_CROSS,
-		PSP_CTRL_SQUARE,
-		PSP_CTRL_HOME,
-		PSP_CTRL_HOLD,
-		PSP_CTRL_NOTE,
-		PSP_CTRL_CIRCLE,
-		PSP_CTRL_START,
+map<int, int> gKeyboardMap = {
+	{SDL_SCANCODE_G, PSP_CTRL_TRIANGLE},
+	{SDL_SCANCODE_BACKSPACE, PSP_CTRL_CIRCLE},
+	{SDL_SCANCODE_SPACE, PSP_CTRL_CROSS},
+	{SDL_SCANCODE_Y, PSP_CTRL_UP},
+	{SDL_SCANCODE_B, PSP_CTRL_DOWN},
+	{SDL_SCANCODE_H, PSP_CTRL_LEFT},
+	{SDL_SCANCODE_U, PSP_CTRL_RIGHT},
+	{SDL_SCANCODE_LEFT, PSP_CTRL_LTRIGGER},
+	{SDL_SCANCODE_RIGHT, PSP_CTRL_RTRIGGER},
+	{SDL_SCANCODE_RETURN, PSP_CTRL_START},
+	{SDL_SCANCODE_TAB, PSP_CTRL_SELECT},
+	{SDL_SCANCODE_LALT, PSP_CTRL_NOTE},
+	{SDL_SCANCODE_R, PSP_CTRL_SQUARE}
 };
 
-
-static u32 gWinKeyCodes[17] =
-{
-
-	VK_CONTROL,
-		VK_RETURN,
-		VK_UP,
-		VK_RIGHT,
-		VK_DOWN,
-		VK_LEFT,
-		'Q',
-		'E',
-		VK_NUMPAD8,
-		VK_NUMPAD6,
-		VK_NUMPAD2,
-		VK_NUMPAD4,
-		VK_F1,
-		VK_F2,
-		VK_F3,
-		VK_SPACE,
-		VK_ESCAPE
-		
+map<int, int> gMouseMap = {
+	{SDL_BUTTON_LEFT, PSP_CTRL_CROSS},
+	{SDL_BUTTON_RIGHT, PSP_CTRL_CIRCLE},
+	{SDL_BUTTON_MIDDLE, PSP_CTRL_TRIANGLE}
 };
+
+map<int, int> gGamepadMap = {
+	{SDL_CONTROLLER_BUTTON_A, PSP_CTRL_CROSS},
+	{SDL_CONTROLLER_BUTTON_B, PSP_CTRL_CIRCLE},
+	{SDL_CONTROLLER_BUTTON_X, PSP_CTRL_SQUARE},
+	{SDL_CONTROLLER_BUTTON_Y, PSP_CTRL_TRIANGLE},
+	{SDL_CONTROLLER_BUTTON_LEFTSHOULDER, PSP_CTRL_LTRIGGER},
+	{SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, PSP_CTRL_RTRIGGER},
+	{SDL_CONTROLLER_BUTTON_BACK, PSP_CTRL_SELECT},
+	{SDL_CONTROLLER_BUTTON_START, PSP_CTRL_START},
+	{SDL_CONTROLLER_BUTTON_DPAD_UP, PSP_CTRL_UP},
+	{SDL_CONTROLLER_BUTTON_DPAD_DOWN, PSP_CTRL_DOWN},
+	{SDL_CONTROLLER_BUTTON_DPAD_LEFT, PSP_CTRL_LEFT},
+	{SDL_CONTROLLER_BUTTON_DPAD_RIGHT, PSP_CTRL_RIGHT}
+};
+
+//static u32 gPSPKeyMasks[17] =
+//{
+//	PSP_CTRL_SELECT,
+//		PSP_CTRL_START,
+//		PSP_CTRL_UP,
+//		PSP_CTRL_RIGHT,
+//		PSP_CTRL_DOWN,
+//		PSP_CTRL_LEFT,
+//		PSP_CTRL_LTRIGGER,
+//		PSP_CTRL_RTRIGGER,
+//		PSP_CTRL_TRIANGLE,
+//		PSP_CTRL_CIRCLE,
+//		PSP_CTRL_CROSS,
+//		PSP_CTRL_SQUARE,
+//		PSP_CTRL_HOME,
+//		PSP_CTRL_HOLD,
+//		PSP_CTRL_SQUARE,
+//		PSP_CTRL_CIRCLE,
+//		PSP_CTRL_TRIANGLE,
+//};
+
+
+//static u32 gWinKeyCodes[17] =
+//{
+//
+//	VK_CONTROL,
+//		VK_RETURN,
+//		'Y',
+//		'U',
+//		'B',
+//		VK_LEFT,
+//		'Q',
+//		'E',
+//		'G',
+//		VK_NUMPAD2,
+//		VK_NUMPAD1,
+//		'R',
+//		VK_F1,
+//		VK_F2,
+//		VK_NUMPAD4,
+//		VK_BACK,
+//		VK_NUMPAD5
+//		
+//};
+
+void SetEnglishKeyboardLayout() {
+	// 將鍵盤佈局設置為美式英語
+	HKL hklEnglish = LoadKeyboardLayout("00000409", KLF_SETFORPROCESS);
+	if (hklEnglish == NULL) {
+		// 如果加載失敗，輸出錯誤訊息
+		MessageBox(NULL, "Failed to load English keyboard layout.", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	// 啟用鍵盤佈局
+	ActivateKeyboardLayout(hklEnglish, KLF_SETFORPROCESS);
+}
 
 void RedirectIOToConsole();
+void UpdateProjectionMatrix(int width, int height);
+
+string JGEGetTextInput()
+{
+	return textInput;
+}
+
 
 void JGEControl()
 {
 	gOldButtons = gButtons;
+
+	textInput = "";
 	
 	gButtons = 0;
-	for (int i=0;i<17;i++)
-		if (g_keys[gWinKeyCodes[i]])
-			gButtons |= gPSPKeyMasks[i];
+	
+}
+
+void process_input()
+{
+	gOldButtons = gButtons;
+	gButtons = 0;
+	textInput = "";
+
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
+		{
+		case SDL_TEXTINPUT:
+			textInput = event.text.text;
+			break;
+		case SDL_TEXTEDITING:
+			// 忽略输入法文本编辑事件
+			break;
+		case SDL_QUIT:
+			done = TRUE; // 设置标志以退出主循环
+			break;
+		case	SDL_CONTROLLERBUTTONDOWN:
+				//isUsingKeyboard = false;
+			break;
+		case SDL_KEYDOWN:
+				g_isUsingKeyboard = true;
+			if (event.key.keysym.sym == SDLK_ESCAPE) {
+				// 退出相对模式，使鼠标可见并可移出窗口
+				SDL_SetRelativeMouseMode(SDL_FALSE);
+				SDL_ShowCursor(SDL_ENABLE);
+				fullscreen = !fullscreen;
+				SDL_SetWindowFullscreen(window, 0);
+				ScreenW = SCREEN_WIDTH;
+				ScreenH = SCREEN_HEIGHT;
+				SDL_SetWindowSize(window, ScreenW, ScreenH);
+				SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+				UpdateProjectionMatrix(ScreenW, ScreenH);  // 恢復投影矩陣
+			}
+
+			if (event.key.keysym.sym == SDLK_F11) {
+				// 切换全屏和窗口模式
+				fullscreen = !fullscreen;
+				if (fullscreen) {
+					SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+					SDL_GetWindowSize(window, &ScreenW, &ScreenH);
+					UpdateProjectionMatrix(ScreenW, ScreenH);  // 更新投影矩陣
+				}
+				else {
+					SDL_SetWindowFullscreen(window, 0);
+					ScreenW = SCREEN_WIDTH;
+					ScreenH = SCREEN_HEIGHT;
+					SDL_SetWindowSize(window, ScreenW, ScreenH);
+					SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+					UpdateProjectionMatrix(ScreenW, ScreenH);  // 恢復投影矩陣
+				}
+			}
+			break;
+		case SDL_WINDOWEVENT:
+			if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				// 更新投影矩陣，根據新的窗口尺寸
+				int width, height;
+				SDL_GetWindowSize(window, &width, &height);
+				UpdateProjectionMatrix(width, height);
+			}
+			
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			// 当点击鼠标时，重新进入相对模式
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				SDL_SetRelativeMouseMode(SDL_TRUE);
+				SDL_ShowCursor(SDL_ENABLE);
+			}
+			break;
+		case SDL_JOYDEVICEADDED:
+			// 检测到新手柄连接
+			if (gameController == nullptr && SDL_NumJoysticks() > 0 && SDL_IsGameController(event.jdevice.which)) {
+				gameController = SDL_GameControllerOpen(event.jdevice.which);
+				if (gameController) {
+					std::cout << "GameController connected!" << std::endl;
+				}
+			}
+			break;
+		case SDL_JOYBUTTONDOWN:
+			g_isUsingKeyboard = false;
+			break;
+
+		case SDL_JOYDEVICEREMOVED:
+			// 手柄被移除
+			if (gameController) {
+				SDL_GameControllerClose(gameController);
+				gameController = nullptr;
+				std::cout << "GameController disconnected!" << std::endl;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	// keyboard
+	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+	
+	for (const auto& entry : gKeyboardMap) {
+		if (currentKeyStates[entry.first]) {
+			gButtons |= entry.second; // 按下时设置按钮状态
+		}
+		else {
+			gButtons &= ~entry.second; // 释放时清除按钮状态
+		}
+	}
+
+	//mouse buttons
+	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+		gButtons |= gMouseMap[SDL_BUTTON_LEFT];
+	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		gButtons |= gMouseMap[SDL_BUTTON_RIGHT];
+	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE))
+		gButtons |= gMouseMap[SDL_BUTTON_MIDDLE];
+
+	// gamepad
+	
+	if (gameController != nullptr) {
+		for (const auto& entry : gGamepadMap) {
+			int buttonIndex = entry.first;
+			int buttonState = SDL_GameControllerGetButton(gameController, static_cast<SDL_GameControllerButton>(buttonIndex));
+
+			if (buttonState == SDL_PRESSED) {
+				gButtons |= entry.second; // 按下时设置按钮状态
+			}
+		}
+		// 获取摇杆的输入值
+		analogX = SDL_GameControllerGetAxis(gameController, SDL_CONTROLLER_AXIS_LEFTX) / 32767.0f;
+		analogY = SDL_GameControllerGetAxis(gameController, SDL_CONTROLLER_AXIS_LEFTY) / 32767.0f;
+	}
 }
 
 
 BOOL JGEGetKeyState(int key)
 {
 	return (g_keys[key]);
+}
+
+BOOL isUsingKeyboard()
+{
+	return g_isUsingKeyboard ? TRUE : FALSE;
 }
 
 
@@ -138,6 +375,72 @@ bool JGEGetButtonClick(u32 button)
 	return (gButtons&button)==button && (gOldButtons&button)!=button;
 }
 
+u8 JGEGetAnalogX()
+{
+	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+	if (currentKeyStates[SDL_SCANCODE_D]) return 0xff;
+	if (currentKeyStates[SDL_SCANCODE_A]) return 0;
+	if (analogX > -0.01 && analogX < 0.01) return 0x80;
+	return (analogX + 1) * 127.0; // convert from [-1,1] range to [0,255] range
+}
+
+u8 JGEGetAnalogY()
+{
+	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+	if (currentKeyStates[SDL_SCANCODE_W]) return 0;
+	if (currentKeyStates[SDL_SCANCODE_S]) return 0xff;
+	if (analogY > -0.01 && analogY < 0.01) return 0x80;
+	return (analogY + 1) * 127.0; // convert from [-1,1] range to [0,255] range
+}
+
+void JGEGetMouseMovement(int* x, int* y)
+{
+	SDL_GetRelativeMouseState(x, y);
+}
+
+void UpdateProjectionMatrix(int width, int height) {
+
+	float screenAspectRatio = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;
+	float currentAspectRatio = static_cast<float>(width) / height;
+
+	int adjustedWidth = width;
+	int adjustedHeight = height;
+
+	int xOffset = 0;
+	int yOffset = 0;
+
+	if (currentAspectRatio == screenAspectRatio) {
+		// 屏幕比例与理想比例相同，直接使用传入的宽高
+		adjustedWidth = width;
+		adjustedHeight = height;
+	}
+	else {
+		// 屏幕比例不同，调整到最接近的符合比例的尺寸，并计算偏移
+		if (currentAspectRatio > screenAspectRatio) {
+			// 屏幕较宽，基于高度调整宽度，并水平居中
+			adjustedWidth = static_cast<int>(height * screenAspectRatio);
+			xOffset = (width - adjustedWidth) / 2;
+		}
+		else {
+			// 屏幕较窄，基于宽度调整高度，并垂直居中
+			adjustedHeight = static_cast<int>(width / screenAspectRatio);
+			yOffset = (height - adjustedHeight) / 2;
+		}
+	}
+
+	//glViewport(0, 0, (GLsizei)width, (GLsizei)height);	// Reset The Current Viewport
+	glViewport(xOffset, yOffset, adjustedWidth, adjustedHeight);
+	glMatrixMode(GL_PROJECTION);										// Select The Projection Matrix
+	glLoadIdentity();													// Reset The Projection Matrix
+
+	gluOrtho2D(0.0f, SCREEN_WIDTH_F - 1.0f, 0.0f, SCREEN_HEIGHT_F - 1.0f);
+	//glOrtho(0.0f, (GLfloat)SCREEN_WIDTH_F, (GLfloat)SCREEN_HEIGHT_F, 0.0f, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);										// Select The Modelview Matrix
+	glLoadIdentity();													// Reset The Modelview Matrix
+
+	glDisable(GL_DEPTH_TEST);
+}
 
 LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
 
@@ -163,6 +466,7 @@ GLvoid ReSizeGLScene(GLsizei width, GLsizei height)		// Resize And Initialize Th
 
 int InitGL(GLvoid)												// All Setup For OpenGL Goes Here
 {
+	//glUseProgram(shaderProgram);
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);						// Black Background
 	glClearDepth (1.0f);										// Depth Buffer Setup
 	glDepthFunc (GL_LEQUAL);									// The Type Of Depth Testing (Less Or Equal)
@@ -180,9 +484,11 @@ int InitGL(GLvoid)												// All Setup For OpenGL Goes Here
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_SCISSOR_TEST);									// Enable Clipping
+	//glEnable(GL_SCISSOR_TEST);									// Enable Clipping
 	//glScissor(20, 20, 320, 240);
+	//glGenerateMipmap(GL_TEXTURE_2D);
+
+
 
 	return TRUE;												// Initialization Went OK
 }
@@ -191,13 +497,27 @@ int InitGL(GLvoid)												// All Setup For OpenGL Goes Here
 int InitGame(GLvoid)
 {
 	g_engine = JGE::GetInstance();
+
+	//SetEnglishKeyboardLayout();
+
+	SDL_StartTextInput();
+	if (SDL_NumJoysticks() > 0 && SDL_IsGameController(0)) {
+		gameController = SDL_GameControllerOpen(0);
+		if (gameController) {
+			std::cout << "GameController initialized!" << std::endl;
+		}
+	}
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+
 	
 	//JGameLauncher *launcher = new JGameLauncher();
 	g_app = g_launcher->GetGameApp();
 	g_app->Create();
 	g_engine->SetApp(g_app);
 	
-	JRenderer::GetInstance()->Enable2D();
+	//JRenderer::GetInstance()->Enable2D();
+
+	UpdateProjectionMatrix(ScreenW, ScreenH);
 	
 	lastTickCount = GetTickCount();
 
@@ -246,7 +566,8 @@ int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 
 void Update(int dt)
 {
-	JGEControl();
+	//JGEControl();
+	process_input();
 	
 	g_engine->SetDelta(dt);
 	
@@ -309,183 +630,71 @@ GLvoid KillGLWindow(GLvoid)								// Properly Kill The Window
  *	bits			- Number Of Bits To Use For Color (8/16/24/32)			*
  *	fullscreenflag	- Use Fullscreen Mode (TRUE) Or Windowed Mode (FALSE)	*/
  
+
+
 BOOL CreateGLWindow(char* title, int width, int height, int bits, bool fullscreenflag)
 {
-	GLuint		PixelFormat;			// Holds The Results After Searching For A Match
-	WNDCLASS	wc;						// Windows Class Structure
-	DWORD		dwExStyle;				// Window Extended Style
-	DWORD		dwStyle;				// Window Style
-	RECT		WindowRect;				// Grabs Rectangle Upper Left / Lower Right Values
-	WindowRect.left=(long)0;			// Set Left Value To 0
-	WindowRect.right=(long)width;		// Set Right Value To Requested Width
-	WindowRect.top=(long)0;				// Set Top Value To 0
-	WindowRect.bottom=(long)height;		// Set Bottom Value To Requested Height
+	/*Uint32 windowFlags = SDL_WINDOW_OPENGL;
+	if (fullscreenflag) {
+		windowFlags |= SDL_WINDOW_FULLSCREEN;
+	}*/
 
-	fullscreen=fullscreenflag;			// Set The Global Fullscreen Flag
-
-	hInstance			= GetModuleHandle(NULL);				// Grab An Instance For Our Window
-	wc.style			= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;	// Redraw On Size, And Own DC For Window.
-	wc.lpfnWndProc		= (WNDPROC) WndProc;					// WndProc Handles Messages
-	wc.cbClsExtra		= 0;									// No Extra Window Data
-	wc.cbWndExtra		= 0;									// No Extra Window Data
-	wc.hInstance		= hInstance;							// Set The Instance
-	wc.hIcon			= LoadIcon(NULL, IDI_WINLOGO);			// Load The Default Icon
-	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
-	wc.hbrBackground	= NULL;									// No Background Required For GL
-	wc.lpszMenuName		= NULL;									// We Don't Want A Menu
-	wc.lpszClassName	= "OpenGL";								// Set The Class Name
-
-	if (!RegisterClass(&wc))									// Attempt To Register The Window Class
-	{
-		MessageBox(NULL,"Failed To Register The Window Class.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;											// Return FALSE
-	}
-	
-	if (fullscreen)												// Attempt Fullscreen Mode?
-	{
-		DEVMODE dmScreenSettings;								// Device Mode
-		memset(&dmScreenSettings,0,sizeof(dmScreenSettings));	// Makes Sure Memory's Cleared
-		dmScreenSettings.dmSize=sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth	= width;				// Selected Screen Width
-		dmScreenSettings.dmPelsHeight	= height;				// Selected Screen Height
-		dmScreenSettings.dmBitsPerPel	= bits;					// Selected Bits Per Pixel
-		dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
-
-		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
-		if (ChangeDisplaySettings(&dmScreenSettings,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL)
-		{
-			// If The Mode Fails, Offer Two Options.  Quit Or Use Windowed Mode.
-			if (MessageBox(NULL,"The Requested Fullscreen Mode Is Not Supported By\nYour Video Card. Use Windowed Mode Instead?","NeHe GL",MB_YESNO|MB_ICONEXCLAMATION)==IDYES)
-			{
-				fullscreen=FALSE;		// Windowed Mode Selected.  Fullscreen = FALSE
-			}
-			else
-			{
-				// Pop Up A Message Box Letting User Know The Program Is Closing.
-				MessageBox(NULL,"Program Will Now Close.","ERROR",MB_OK|MB_ICONSTOP);
-				return FALSE;									// Return FALSE
-			}
-		}
+	// 初始化 SDL
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+		MessageBox(NULL, "Unable to initialize SDL.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;
 	}
 
-	if (fullscreen)												// Are We Still In Fullscreen Mode?
-	{
-		dwExStyle=WS_EX_APPWINDOW;								// Window Extended Style
-		dwStyle=WS_POPUP;										// Windows Style
-		ShowCursor(FALSE);										// Hide Mouse Pointer
-	}
-	else
-	{
-		dwExStyle=WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;			// Window Extended Style
-		//dwStyle=WS_OVERLAPPEDWINDOW;							// Windows Style
-		dwStyle= WS_OVERLAPPED     | \
-                 WS_CAPTION        | \
-				 WS_MINIMIZEBOX	   |
-				 //WS_MINIMIZE		|
-                 WS_SYSMENU;//        | \
-                 //WS_THICKFRAME ;
+	// 创建 SDL 窗口
+
+	window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ScreenW, ScreenH, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	if (!window) {
+		SDL_Quit();
+		MessageBox(NULL, "Window creation failed.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;
 	}
 
-	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
-
-	// Create The Window
-	if (!(hWnd=CreateWindowEx(	dwExStyle,							// Extended Style For The Window
-								"OpenGL",							// Class Name
-								title,								// Window Title
-								dwStyle |							// Defined Window Style
-								WS_CLIPSIBLINGS |					// Required Window Style
-								WS_CLIPCHILDREN,					// Required Window Style
-								0, 0,								// Window Position
-								WindowRect.right-WindowRect.left,	// Calculate Window Width
-								WindowRect.bottom-WindowRect.top,	// Calculate Window Height
-								NULL,								// No Parent Window
-								NULL,								// No Menu
-								hInstance,							// Instance
-								NULL)))								// Dont Pass Anything To WM_CREATE
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Window Creation Error.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
+	// 创建 OpenGL 上下文
+	glContext = SDL_GL_CreateContext(window);
+	if (!glContext) {
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+		MessageBox(NULL, "Failed to create OpenGL context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;
 	}
 
-	static	PIXELFORMATDESCRIPTOR pfd=				// pfd Tells Windows How We Want Things To Be
-	{
-		sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
-		1,											// Version Number
-		PFD_DRAW_TO_WINDOW |						// Format Must Support Window
-		PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
-		PFD_DOUBLEBUFFER,							// Must Support Double Buffering
-		PFD_TYPE_RGBA,								// Request An RGBA Format
-		bits,										// Select Our Color Depth
-		0, 0, 0, 0, 0, 0,							// Color Bits Ignored
-		0,											// No Alpha Buffer
-		0,											// Shift Bit Ignored
-		0,											// No Accumulation Buffer
-		0, 0, 0, 0,									// Accumulation Bits Ignored
-		16,											// 16Bit Z-Buffer (Depth Buffer)  
-		0,											// No Stencil Buffer
-		0,											// No Auxiliary Buffer
-		PFD_MAIN_PLANE,								// Main Drawing Layer
-		0,											// Reserved
-		0, 0, 0										// Layer Masks Ignored
-	};
-	
-	if (!(hDC=GetDC(hWnd)))							// Did We Get A Device Context?
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Can't Create A GL Device Context.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
+	// 启用双缓冲
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	// Disable Cursor
+	//SDL_ShowCursor(SDL_DISABLE);
+
+	// 设置 OpenGL 视口
+	//glViewport(0, 0, width, height);
+
+	// 设置投影矩阵
+	//UpdateProjectionMatrix(width, height);  // 确保使用新的函数更新投影矩阵
+
+	// 初始化 OpenGL 设置
+	if (!InitGL()) {
+		SDL_GL_DeleteContext(glContext);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+		MessageBox(NULL, "OpenGL Initialization Failed.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;
 	}
 
-	if (!(PixelFormat=ChoosePixelFormat(hDC,&pfd)))	// Did Windows Find A Matching Pixel Format?
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Can't Find A Suitable PixelFormat.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
+	if (!InitGame()) {
+		SDL_GL_DeleteContext(glContext);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+		MessageBox(NULL, "Game Initialization Failed.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;
 	}
 
-	if(!SetPixelFormat(hDC,PixelFormat,&pfd))		// Are We Able To Set The Pixel Format?
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Can't Set The PixelFormat.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
-	}
-
-	if (!(hRC=wglCreateContext(hDC)))				// Are We Able To Get A Rendering Context?
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Can't Create A GL Rendering Context.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
-	}
-
-	if(!wglMakeCurrent(hDC,hRC))					// Try To Activate The Rendering Context
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Can't Activate The GL Rendering Context.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
-	}
-
-	ShowWindow(hWnd,SW_SHOW);						// Show The Window
-	SetForegroundWindow(hWnd);						// Slightly Higher Priority
-	SetFocus(hWnd);									// Sets Keyboard Focus To The Window
-	ReSizeGLScene(width, height);					// Set Up Our Perspective GL Screen
-
-	if (!InitGL())									// Initialize Our Newly Created GL Window
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Initialization Failed.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
-	}
-
-	if (!InitGame())								// Initialize Our Game
-	{
-		KillGLWindow();								// Reset The Display
-		MessageBox(NULL,"Game Initialization Failed.","ERROR",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;								// Return FALSE
-	}
-
-	return TRUE;									// Success
+	return TRUE;  // 成功
 }
+
 
 LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
 							UINT	uMsg,			// Message For This Window
@@ -573,8 +782,8 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
 
 		case WM_SIZE:								// Resize The OpenGL Window
 		{
-			ReSizeGLScene(LOWORD(lParam),HIWORD(lParam));  // LoWord=Width, HiWord=Height
-			return 0;								// Jump Back
+			//ReSizeGLScene(LOWORD(lParam),HIWORD(lParam));  // LoWord=Width, HiWord=Height
+			//return 0;								// Jump Back
 		}
 	}
 
@@ -588,7 +797,7 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 					int			nCmdShow)			// Window Show State
 {
 	MSG		msg;									// Windows Message Structure
-	BOOL	done=FALSE;								// Bool Variable To Exit Loop
+	//BOOL	done=FALSE;								// Bool Variable To Exit Loop
 	
 	DWORD	tickCount;
 	int		dt;
@@ -599,7 +808,8 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 //		fullscreen=FALSE;							// Windowed Mode
 //	}
 
-	RedirectIOToConsole();
+	//RedirectIOToConsole();
+	
 
 	g_launcher = new JGameLauncher();
 
@@ -608,19 +818,28 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 	if ((flags&JINIT_FLAG_ENABLE3D)!=0)
 		JRenderer::Set3DFlag(true);
 
+	SDL_StartTextInput();
+
 	// Create Our OpenGL Window
-	if (!CreateGLWindow(g_launcher->GetName(),SCREEN_WIDTH,SCREEN_HEIGHT,32,fullscreen))
+
+
+	if (!CreateGLWindow(g_launcher->GetName(),ScreenW, ScreenH,32,!fullscreen))
 	{
 		return 0;									// Quit If Window Was Not Created
 	}
+	
+	
+	//if (shaderProgram == 0) {
+	//	return -1;  // 如果着色器初始化失败，退出程序
+	//}
 
-	while(!done)									// Loop That Runs While done=FALSE
+	while (!done)									// Loop That Runs While done=FALSE
 	{
-		if (PeekMessage(&msg,NULL,0,0,PM_REMOVE))	// Is There A Message Waiting?
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))	// Is There A Message Waiting?
 		{
-			if (msg.message==WM_QUIT)				// Have We Received A Quit Message?
+			if (msg.message == WM_QUIT)				// Have We Received A Quit Message?
 			{
-				done=TRUE;							// If So done=TRUE
+				done = TRUE;							// If So done=TRUE
 			}
 			else									// If Not, Deal With Window Messages
 			{
@@ -635,21 +854,25 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 			{
 				if (g_engine->IsDone())
 				{
-					done=TRUE;						// ESC Signalled A Quit
+					done = TRUE;						// ESC Signalled A Quit
 				}
 				else								// Not Time To Quit, Update Screen
 				{
-					tickCount = GetTickCount();					// Get The Tick Count
+					tickCount = SDL_GetTicks();					// Get The Tick Count
 					dt = (tickCount - lastTickCount);
 					lastTickCount = tickCount;
 					Update(dt);									// Update frame
 
 					//Mint2D::BackupKeys();
-					
+
 					DrawGLScene();					// Draw The Scene
-					SwapBuffers(hDC);				// Swap Buffers (Double Buffering)
+					//SwapBuffers(hDC);				// Swap Buffers (Double Buffering)
+					SDL_GL_SwapWindow(window);
 				}
 			}
+		}
+
+	}
 
 //			if (keys[VK_F1])						// Is F1 Being Pressed?
 //			{
@@ -662,16 +885,25 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 //					return 0;						// Quit If Window Was Not Created
 //				}
 //			}
-		}
-	}
-
+	//	}
+	//}
+	
+	
 	if (g_launcher)
 		delete g_launcher;
 
+	if (gameController) {
+		SDL_GameControllerClose(gameController);
+	}
 	// Shutdown
-	KillGLWindow();									// Kill The Window
+	//KillGLWindow();									// Kill The Window
+	// 清理资源
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 	return (msg.wParam);							// Exit The Program
 }
+
+
 
 
 void RedirectIOToConsole(){
@@ -692,30 +924,30 @@ long lStdHandle;
     SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), 
                                coninfo.dwSize);
 
-    // redirect unbuffered STDOUT to the console
-    lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-    fp = _fdopen( hConHandle, "w" );
-    *stdout = *fp;
-    setvbuf( stdout, NULL, _IONBF, 0 );
+    //// redirect unbuffered STDOUT to the console
+    //lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+    //hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+    //fp = _fdopen( hConHandle, "w" );
+    //*stdout = *fp;
+    //setvbuf( stdout, NULL, _IONBF, 0 );
 
-    // redirect unbuffered STDIN to the console
-    lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-    fp = _fdopen( hConHandle, "r" );
-    *stdin = *fp;
-    setvbuf( stdin, NULL, _IONBF, 0 );
+    //// redirect unbuffered STDIN to the console
+    //lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
+    //hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+    //fp = _fdopen( hConHandle, "r" );
+    //*stdin = *fp;
+    //setvbuf( stdin, NULL, _IONBF, 0 );
 
-    // redirect unbuffered STDERR to the console
-    lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-    fp = _fdopen( hConHandle, "w" );
-    *stderr = *fp;
-    setvbuf( stderr, NULL, _IONBF, 0 );
-    
-    // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog 
-    // point to console as well
-    ios::sync_with_stdio();
+    //// redirect unbuffered STDERR to the console
+    //lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
+    //hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+    //fp = _fdopen( hConHandle, "w" );
+    //*stderr = *fp;
+    //setvbuf( stderr, NULL, _IONBF, 0 );
+    //
+    //// make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog 
+    //// point to console as well
+    //ios::sync_with_stdio();
 }
 
 

@@ -10,7 +10,8 @@
 
 #include "GameState.h"
 #include "GameApp.h"
-#include <time.h>
+//#include <time.h>
+#include <chrono>
 #include <vector>
 #include <map>
 #include "Person.h"

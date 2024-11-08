@@ -11,6 +11,10 @@
 #ifndef _JTYPES_H
 #define _JTYPES_H
 
+<<<<<<< HEAD
+#include <glm/vec2.hpp>  
+=======
+>>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 #ifdef WIN32
 
 #else
@@ -50,8 +54,15 @@
 #define SAFE_DELETE_ARRAY(x)	if (x) { delete [] x; x = NULL; }
 
 
+<<<<<<< HEAD
+//#define SCREEN_WIDTH 			2560
+//#define SCREEN_HEIGHT 			1440
+#define SCREEN_WIDTH 			960
+#define SCREEN_HEIGHT 			544
+=======
 #define SCREEN_WIDTH 			480
 #define SCREEN_HEIGHT 			272
+>>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 #define SCREEN_WIDTH_F 			480.0f
 #define SCREEN_HEIGHT_F			272.0f
 #define SCREEN_WIDTH_2			240.0f
@@ -105,24 +116,24 @@
 	#define ARGB(a, r, g, b)		((a << 24) | (r << 16) | (g << 8) | b)
 	#define RGBA(r, g, b, a)		((a << 24) | (b << 16) | (g << 8) | r)
 
-	enum PspCtrlButtons
-	{
-		PSP_CTRL_SELECT     = 0x000001,
-		PSP_CTRL_START      = 0x000008,
-		PSP_CTRL_UP         = 0x000010,
-		PSP_CTRL_RIGHT      = 0x000020,
-		PSP_CTRL_DOWN      	= 0x000040,
-		PSP_CTRL_LEFT      	= 0x000080,
-		PSP_CTRL_LTRIGGER   = 0x000100,
-		PSP_CTRL_RTRIGGER   = 0x000200,
-		PSP_CTRL_TRIANGLE   = 0x001000,
-		PSP_CTRL_CIRCLE     = 0x002000,
-		PSP_CTRL_CROSS      = 0x004000,
-		PSP_CTRL_SQUARE     = 0x008000,
-		PSP_CTRL_HOME       = 0x010000,
-		PSP_CTRL_HOLD       = 0x020000,
-		PSP_CTRL_NOTE       = 0x800000,
-	};
+	 enum PspCtrlButtons
+	 {
+	 	PSP_CTRL_SELECT     = 0x000001,
+	 	PSP_CTRL_START      = 0x000008,
+	 	PSP_CTRL_UP         = 0x000010,
+	 	PSP_CTRL_RIGHT      = 0x000020,
+	 	PSP_CTRL_DOWN      	= 0x000040,
+	 	PSP_CTRL_LEFT      	= 0x000080,
+	 	PSP_CTRL_LTRIGGER   = 0x000100,
+	 	PSP_CTRL_RTRIGGER   = 0x000200,
+	 	PSP_CTRL_TRIANGLE   = 0x001000,
+	 	PSP_CTRL_CIRCLE     = 0x002000,
+	 	PSP_CTRL_CROSS      = 0x004000,
+	 	PSP_CTRL_SQUARE     = 0x008000,
+	 	PSP_CTRL_HOME       = 0x010000,
+	 	PSP_CTRL_HOLD       = 0x020000,
+	 	PSP_CTRL_NOTE       = 0x800000,
+	 };
 
 
 	#define PIXEL_TYPE				DWORD
@@ -303,6 +314,8 @@ public:
 	int mTexHeight;
 
 	int mFilter;
+	glm::vec2 TexCoords[4];
+	//bool mIsMirroredRepeat;
 
 #ifdef WIN32
 	GLuint mTexId;

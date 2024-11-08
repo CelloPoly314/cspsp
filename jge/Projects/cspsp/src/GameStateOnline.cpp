@@ -1,4 +1,5 @@
 #include "GameStateOnline.h"
+#include "JGE.h"
 
 GameStateOnline::GameStateOnline(GameApp* parent): Game(parent) 
 {
@@ -43,7 +44,7 @@ void GameStateOnline::Create()
 	mUpdateTimer = 0.0f;
 	mUpdating = false;
 
-	mAdminPlayersListBox = new ListBox(0,51,SCREEN_WIDTH,171,20,8);
+	mAdminPlayersListBox = new ListBox(0,51,SCREEN_WIDTH_F,171,20,8);
 }
 
 
@@ -297,6 +298,13 @@ void GameStateOnline::CheckInput(float dt)
 	{
 		mPlayer->RotateFacing(0.005f*dt*mTimeMultiplier);
 	}
+
+	// rotate with mouse
+	int deltaMouseX, deltaMouseY;
+	mEngine->GetMouseMovement(&deltaMouseX, &deltaMouseY);
+	if (deltaMouseX != 0 || deltaMouseY != 0)
+		mPlayer->MoveCursor(deltaMouseX, deltaMouseY, dt* mTimeMultiplier);
+
 
 	if (mEngine->GetButtonClick(PSP_CTRL_SQUARE))
 	{
@@ -668,7 +676,7 @@ void GameStateOnline::Update(float dt)
 	if (mState == PLAYING) {
 
 		if (mEngine->GetButtonClick(PSP_CTRL_START)) {
-			if (!gDanzeff->mIsActive && !mIsAdminMenuEnabled) {
+			if (!gTextInput->mIsActive && !gDanzeff->mIsActive && !mIsAdminMenuEnabled) {
 				mGuiController->SetActive(!mGuiController->IsActive());
 			}
 		}
@@ -770,6 +778,37 @@ void GameStateOnline::Update(float dt)
 			
 			StopInput(dt);
 		}
+		else if (gTextInput->mIsActive) {
+			gTextInput->Update(dt);
+			if (gTextInput->mString.length() > 31) {
+				gTextInput->mString = gTextInput->mString.substr(0, 31);
+			}
+			strcpy(mChatString, gTextInput->mString.c_str());
+
+			if (mEngine->GetButtonState(PSP_CTRL_START)) {
+				if (strlen(mChatString) > 0) {
+					if (mIsChatEnabled) {
+						Packet sendpacket = Packet();
+						sendpacket.WriteInt8(CHAT);
+						sendpacket.WriteChar(mChatString);
+						sendpacket.WriteInt8(mIsTeamOnlyChat);
+
+						mUdpManager->SendReliable(sendpacket, true);
+						//mHud->AddChatEvent(mPlayer->mName,mChatString,mPlayer->mTeam,false);
+						mChatTimer += 2000.0f;
+					}
+					else {
+						mHud->AddMessageEvent("Don't spam the chat");
+					}
+				}
+				gTextInput->Disable();
+			}
+			else if (mEngine->GetButtonState(PSP_CTRL_SELECT)) {
+				gTextInput->Disable();
+			}
+
+			StopInput(dt);
+		}
 		else if (mBuyMenu->mIsActive) {
 			mBuyMenu->Update(dt);
 			if (mBuyMenu->mIsSelected) {
@@ -792,12 +831,22 @@ void GameStateOnline::Update(float dt)
 		else {
 			if (!mEngine->GetButtonState(PSP_CTRL_SELECT)) {
 				if (mEngine->GetButtonClick(PSP_CTRL_UP)) {
-					gDanzeff->Enable();
-					strcpy(mChatString,"");
+					if (!isUsingKeyboard()) {
+						gDanzeff->Enable();
+					}
+					else {
+						gTextInput->Enable();
+					}
+					strcpy(mChatString, "");
 					mIsTeamOnlyChat = false;
 				}
 				else if (mEngine->GetButtonClick(PSP_CTRL_RIGHT)) {
-					gDanzeff->Enable();
+					if (!isUsingKeyboard()) {
+						gDanzeff->Enable();
+					}
+					else {
+						gTextInput->Enable();
+					}
 					strcpy(mChatString,"");
 					mIsTeamOnlyChat = true;
 				}
@@ -1052,7 +1101,7 @@ void GameStateOnline::Render()
 {
 	if (mState != PLAYING) {
 		mRenderer->ClearScreen(ARGB(255,0,0,0));
-		//mRenderer->FillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,ARGB(255,0,0,0));
+		//mRenderer->FillRect(0,0,SCREEN_WIDTH_F,SCREEN_HEIGHT_F,ARGB(255,0,0,0));
 		gFont->SetColor(ARGB(255,255,255,255));
 		gFont->SetScale(0.75f);
 		gFont->DrawString("[O] Cancel and Return to Lobby",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
@@ -1064,18 +1113,18 @@ void GameStateOnline::Render()
 		else if (mState == DOWNLOADING) {
 			char buffer[128];
 
-			mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT-30-30,200,4,ARGB(255,100,100,100));
+			mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT_F-30-30,200,4,ARGB(255,100,100,100));
 			if (mDownloadId == 0) {
 				sprintf(buffer,"Downloading %s/map.txt...",mMapName);
-				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT-30-30,200*((float)mDownloadAmount/(float)mMapTextSize),4,ARGB(255,255,255,255));
+				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT_F-30-30,200*((float)mDownloadAmount/(float)mMapTextSize),4,ARGB(255,255,255,255));
 			}
 			else if (mDownloadId == 1) {
 				sprintf(buffer,"Downloading %s/tile.png...",mMapName);
-				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT-30-30,200*((float)mDownloadAmount/(float)mMapImageSize),4,ARGB(255,255,255,255));
+				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT_F-30-30,200*((float)mDownloadAmount/(float)mMapImageSize),4,ARGB(255,255,255,255));
 			}
 			else if (mDownloadId == 2 && mMapOverviewSize > 0) {
 				sprintf(buffer,"Downloading %s/overview.png...",mMapName);
-				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT-30-30,200*((float)mDownloadAmount/(float)mMapOverviewSize),4,ARGB(255,255,255,255));
+				mRenderer->FillRect(SCREEN_WIDTH_2-100,SCREEN_HEIGHT_F-30-30,200*((float)mDownloadAmount/(float)mMapOverviewSize),4,ARGB(255,255,255,255));
 			}
 			else {
 				sprintf(buffer,"Downloading %s...",mMapName);
@@ -1115,8 +1164,8 @@ void GameStateOnline::Render()
 			gFont->DrawShadowedString("|",10+gFont->GetStringWidth(buffer),40);
 		}
 		gFont->SetColor(ARGB(255,0,0,0));
-		gFont->DrawString("[START] Enter  [SELECT] Cancel",SCREEN_WIDTH-100,200,JGETEXT_CENTER);
-		gDanzeff->Render(SCREEN_WIDTH-175,50);
+		gFont->DrawString("[START] Enter  [SELECT] Cancel",SCREEN_WIDTH_F-100,200,JGETEXT_CENTER);
+		gDanzeff->Render(SCREEN_WIDTH_F-175,50);
 	}*/
 
 	if (mIsMapChanging) {
@@ -1124,10 +1173,10 @@ void GameStateOnline::Render()
 		gFont->SetScale(0.75f);
 		gFont->SetColor(ARGB(255,255,200,0));
 		sprintf(buffer,"Changing to new map in %i...",(int)(mMapChangeTimer/1000.0f));
-		gFont->DrawShadowedString(buffer, SCREEN_WIDTH_2, SCREEN_HEIGHT-40, JGETEXT_CENTER);
+		gFont->DrawShadowedString(buffer, SCREEN_WIDTH_2, SCREEN_HEIGHT_F-40, JGETEXT_CENTER);
 	}
 	else if (mIsAdminMenuEnabled) {
-		mRenderer->FillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,ARGB(200,0,0,0));
+		mRenderer->FillRect(0,0,SCREEN_WIDTH_F,SCREEN_HEIGHT_F,ARGB(200,0,0,0));
 
 		gFont->SetColor(ARGB(255,255,255,255));
 		gFont->SetScale(1.0f);
@@ -1135,11 +1184,11 @@ void GameStateOnline::Render()
 		gFont->SetScale(0.75f);
 
 		gFont->DrawShadowedString("players",20,35);
-		mRenderer->DrawLine(0,50,SCREEN_WIDTH,50,ARGB(255,255,255,255));
+		mRenderer->DrawLine(0,50,SCREEN_WIDTH_F,50,ARGB(255,255,255,255));
 
 		mAdminPlayersListBox->Render();
 
-		mRenderer->DrawLine(0,232,SCREEN_WIDTH,232,ARGB(255,255,255,255));
+		mRenderer->DrawLine(0,232,SCREEN_WIDTH_F,232,ARGB(255,255,255,255));
 		gFont->DrawShadowedString("[[]] Kick     [^] Ban     [O] Return",SCREEN_WIDTH_2,SCREEN_HEIGHT_F-20,JGETEXT_CENTER);
 	}
 
@@ -1696,6 +1745,9 @@ void GameStateOnline::HandlePacket(Packet &packet, bool sendack) {
 					if (gDanzeff->mIsActive) {
 						gDanzeff->Disable();
 					}
+					if (gTextInput->mIsActive) {
+						gTextInput->Disable();
+					}
 					if (mBuyMenu->mIsActive) {
 						mBuyMenu->Disable();
 					}
@@ -1827,7 +1879,8 @@ void GameStateOnline::HandlePacket(Packet &packet, bool sendack) {
 						if ((unsigned char)icon[i] == 255 && (unsigned char)icon[i+2] == 255 && (unsigned char)icon[i+1] == 0) {
 							a = 0;
 						}
-						bits[(9-y)*10+x] = ARGB(a,(unsigned char)icon[i+2],(unsigned char)icon[i+1],(unsigned char)icon[i]);
+						//bits[(9-y)*10+x] = ARGB(a,(unsigned char)icon[i+2],(unsigned char)icon[i+1],(unsigned char)icon[i]);
+						bits[(9 - y) * 10 + x] = ARGB(a, (unsigned char)icon[i ], (unsigned char)icon[i + 1], (unsigned char)icon[i + 2]);
 						i += 3;
 					}
 				}

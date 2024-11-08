@@ -9,6 +9,8 @@
 //-------------------------------------------------------------------------------------
 
 #include <stdio.h>
+#include <chrono>
+#include <thread>
 
 #include "GameApp.h"
 
@@ -36,6 +38,7 @@ JRenderer* GameApp::mRenderer = NULL;
 GameApp::GameApp()
 {
 	mRenderer = JRenderer::GetInstance();
+	
 }
 
 
@@ -145,7 +148,10 @@ void GameApp::Update()
 		dt = 16.0f;		// avoid division by 0
 
 	#ifdef WIN32
-		clock_t start_time = clock();
+		//clock_t start_time = clock();
+		//auto start_time = std::chrono::high_resolution_clock::now();
+		//auto delay = std::chrono::duration<float, std::milli>(16.66666f);
+
 	#endif
 
 	if (mCurrentState != NULL)
@@ -167,9 +173,19 @@ void GameApp::Update()
 		{
 
 		}*/
-		while (12.66666f-(clock()-start_time) > 0.0f) {
-			Sleep(12.66666f-(clock()-start_time));
-		}
+		// while (12.66666f-(clock()-start_time) > 0.0f) {
+		// 	Sleep(12.66666f-(clock()-start_time));
+		// }
+		//while (true) {
+  //      auto current_time = std::chrono::high_resolution_clock::now();
+  //      auto elapsed = current_time - start_time;
+
+  //      if (elapsed >= delay) break;
+
+  //      // 計算剩餘時間並睡眠
+  //      std::this_thread::sleep_for(delay - elapsed);
+		//}
+
 	#endif
 }
 
