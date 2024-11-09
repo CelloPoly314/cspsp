@@ -16,10 +16,7 @@
 #include "../include/JResourceManager.h"
 #include "../include/JFileSystem.h"
 //#include "../include/JParticleSystem.h"
-<<<<<<< HEAD
 using namespace std;
-=======
->>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 
 
 //////////////////////////////////////////////////////////////////////////
