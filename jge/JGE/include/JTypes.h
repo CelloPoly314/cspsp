@@ -11,10 +11,7 @@
 #ifndef _JTYPES_H
 #define _JTYPES_H
 
-<<<<<<< HEAD
 #include <glm/vec2.hpp>  
-=======
->>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 #ifdef WIN32
 
 #else
@@ -54,15 +51,10 @@
 #define SAFE_DELETE_ARRAY(x)	if (x) { delete [] x; x = NULL; }
 
 
-<<<<<<< HEAD
 //#define SCREEN_WIDTH 			2560
 //#define SCREEN_HEIGHT 			1440
 #define SCREEN_WIDTH 			960
 #define SCREEN_HEIGHT 			544
-=======
-#define SCREEN_WIDTH 			480
-#define SCREEN_HEIGHT 			272
->>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 #define SCREEN_WIDTH_F 			480.0f
 #define SCREEN_HEIGHT_F			272.0f
 #define SCREEN_WIDTH_2			240.0f

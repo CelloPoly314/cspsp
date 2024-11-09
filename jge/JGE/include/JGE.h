@@ -13,11 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-<<<<<<< HEAD
 #include <string>
-=======
-#include <string.h>
->>>>>>> 51abd9ed47ca39c576030a8ed233523e2d41d44c
 #include <stdarg.h>
 
 #include "JTypes.h"
